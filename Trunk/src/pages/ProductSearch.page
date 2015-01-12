@@ -1,0 +1,228 @@
+<apex:page controller="ProductSearchController">
+<apex:includeScript value="{!URLFOR($Resource.jquery, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.jqueryUi, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.jqueryUiCore, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.multiselect, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.browserselector, '')}"  />
+<apex:stylesheet value="{!URLFOR($Resource.stylesheets, '/stylesheets/main.css')}"  />
+<apex:stylesheet value="{!URLFOR($Resource.stylesheets, '/stylesheets/multiselect.css')}"  />
+<script type="text/javascript">
+	$j = jQuery.noConflict();
+	$j(document).ready(function() {
+		function InitMultiple(className, values){			
+			$j("." + className + " option").each(function(){
+			    var valArr = values.split(',');
+			    var exsit = false;
+			    for(var i = 0; i < valArr.length; i++){
+			    	if(valArr[i] == $j(this).val()) exsit = true;
+			    }
+			    if(exsit){
+			   	    $j(this).prop("selected", true);
+			    }else{
+			   	    $j(this).prop("selected", false);
+			    }
+			});
+		}
+		var dptValues = document.getElementById('{!$Component.ProductForm.HiddenDepartment}').value;
+		var pgValues = document.getElementById('{!$Component.ProductForm.HiddenProductGroup}').value;
+		var scValues = document.getElementById('{!$Component.ProductForm.HiddenSeasonCode}').value;
+		InitMultiple('multiDepartment', dptValues);
+		InitMultiple('multiProductGroup', pgValues);
+		InitMultiple('multiSeasonCode', scValues);
+		
+		$j(".multiDepartment,.multiProductGroup,.multiSeasonCode").multiselect();
+	})
+	function SetMultiSelectVal(){
+		var dptValues = GetMultiValues(".multiDepartment");
+		document.getElementById('{!$Component.ProductForm.HiddenDepartment}').value = dptValues;
+		
+		var groupValues = GetMultiValues(".multiProductGroup");
+		document.getElementById('{!$Component.ProductForm.HiddenProductGroup}').value = groupValues;
+		
+		var seasonCodeValues = GetMultiValues(".multiSeasonCode");
+		document.getElementById('{!$Component.ProductForm.HiddenSeasonCode}').value = seasonCodeValues;
+	}
+	function GetMultiValues(className){
+		var values = alues = $j(className).multiselect("getChecked").map(function(){
+		   return this.value;    
+		}).get().join(",");
+		return values;
+	}
+</script>
+    <div class="bPageTitle">
+        <div class="ptBody">
+            <div class="content">
+                <img title="Products" class="pageTitleIcon" alt="Products" src="/s.gif" />
+                <h1 class="pageType">Products</h1>
+                <h2 class="pageDescription">Home</h2>
+            </div>
+        </div>
+    </div>
+    <apex:form id="ProductForm">
+        <div class="bSubBlock brandSecondaryBrd secondaryPalette">
+            <h3 class="lbHeader">Find Products</h3>
+            <div class="lbBody">
+            	<apex:outputPanel layout="block" rendered="{!ValidatorInput.InValid}" styleClass="pbError">
+            		<p>Error: Invalid Data.</p>
+					<p>Review all error messages below to correct your data.</p>
+				</apex:outputPanel>
+                <div class="field">
+                    <label class="lbl">SKU</label>
+                    <input type="hidden" class="skuInput error" name="_sku" />
+                    <apex:inputText value="{!ParamSKU}" styleClass="skuInput"/>
+                </div>
+                <div class="field">
+                    <label class="lbl">Model</label>
+                    <input type="hidden" class="modelInput error" name="_model" />
+                    <apex:inputText value="{!ParamModel}" styleClass="modelInput"/>
+                </div>
+                <div class="field">
+                    <label class="lbl">Title</label>
+                    <apex:inputText value="{!ParamTitle}" styleClass="titleInput"/>
+                </div>
+                <div class="field">
+                    <label class="lbl">Online Title</label>
+                    <apex:inputText value="{!ParamOnlineTitle}" styleClass="titleInput"/>
+                </div>
+                <div class="field">
+                    <label class="lbl">Manufacturer</label>
+                    <apex:inputText value="{!ParamBrand}" styleClass="brandInput"/>
+                </div>
+                <div class="field">
+                    <label class="lbl">Supplier</label>
+                    <apex:inputText value="{!ParamSupplier}" styleClass="supplierInput"/>
+                </div>
+                <div class="field">
+                    <label class="lbl">SOH (greater than)</label>
+                    <apex:inputText value="{!ParamSOH}" styleClass="sohInput"/>
+                    <apex:outputPanel layout="block" rendered="{!ValidatorInput.InValidSOH}" styleClass="errorMsg">Invalid SOH</apex:outputPanel>
+                </div> 
+                <div class="clear"></div>                           
+                <div class="field departmentField">
+                    <label class="lbl">Department</label>
+                    <apex:selectList id="DepartmentRange" value="{!ParamDepartmentRange}" size="1" styleClass="shortSelect">
+						<apex:selectOptions value="{!Region1List}"/>
+					</apex:selectList>
+                    <apex:inputHidden id="HiddenDepartment" value="{!ParamDepartment}"/>
+                    <apex:selectList id="Department" value="{!ParamDepartmentSelected}" size="1" styleClass="multiselect multiDepartment" multiselect="true">
+						<apex:selectOptions value="{!DepartmentList}"/>
+					</apex:selectList>
+                </div>                  
+                <div class="field productGroupField">
+                    <label class="lbl">Product Group</label>
+                    <apex:selectList id="ProductGroupRange" value="{!ParamProductGroupRange}" size="1" styleClass="shortSelect">
+						<apex:selectOptions value="{!Region1List}"/>
+					</apex:selectList>
+                    <apex:inputHidden id="HiddenProductGroup" value="{!ParamProductGroup}"/>
+                    <apex:selectList id="ProductGroup" value="{!ParamProductGroupSelected}" size="1" styleClass="multiselect multiProductGroup" multiselect="true">
+						<apex:selectOptions value="{!ProductGroupList}"/>
+					</apex:selectList>
+                </div>
+                <div class="field seasonCodeField">
+                    <label class="lbl">Season Code</label>
+                    <apex:selectList id="SeasonCodeRange" value="{!ParamSeasonCodeRange}" size="1" styleClass="shortSelect">
+						<apex:selectOptions value="{!Region1List}"/>
+					</apex:selectList>
+					<apex:inputHidden id="HiddenSeasonCode" value="{!ParamSeasonCode}"/>
+                    <apex:selectList id="SeasonCode" value="{!ParamSeasonCodeSelected}" size="1" styleClass="multiselect multiSeasonCode" multiselect="true">
+						<apex:selectOptions value="{!SeasonCodeList}"/>
+					</apex:selectList>
+                </div>
+                <div class="field">
+                    <label class="lbl">Cost Ex.</label>
+                    <apex:selectList id="CostExRange" value="{!ParamCostExRange}" size="1" styleClass="shortSelect priceSelect">
+						<apex:selectOptions value="{!Region2List}"/>
+					</apex:selectList>
+                    <apex:inputText value="{!ParamCostEx}" styleClass="costInput"/>
+					<apex:outputPanel layout="block" rendered="{!ValidatorInput.InValidCostEx}" styleClass="errorMsg">Invalid Cost Ex.</apex:outputPanel>
+                </div>
+                <div class="field">
+                    <label class="lbl">Cost Inc.</label>
+                    <apex:selectList id="CostIncRange" value="{!ParamCostIncRange}" size="1" styleClass="shortSelect priceSelect">
+						<apex:selectOptions value="{!Region2List}"/>
+					</apex:selectList>
+                    <apex:inputText value="{!ParamCostInc}" styleClass="costInput"/>
+                    <apex:outputPanel layout="block" rendered="{!ValidatorInput.InValidCostInc}" styleClass="errorMsg">Invalid Cost Inc.</apex:outputPanel>
+                </div>
+                <div class="field">
+                    <label class="lbl">Ticket Price</label>
+                    <apex:selectList id="TicketPrice" value="{!ParamTicketPriceRange}" size="1" styleClass="shortSelect priceSelect">
+						<apex:selectOptions value="{!Region2List}"/>
+					</apex:selectList>
+                    <apex:inputText value="{!ParamTicketPrice}" styleClass="priceInput"/>
+                    <apex:outputPanel layout="block" rendered="{!ValidatorInput.InValidTicketPrice}" styleClass="errorMsg">Invalid TicketPrice</apex:outputPanel>
+                </div>
+                <div class="clear"></div>
+                <div class="field checkboxField">
+                    <apex:inputCheckbox id="Available" value="{!ParamAvailable}" selected="{!ParamAvailable}"/>
+                    <span>Available</span> 
+                </div>
+                <div class="field checkboxField">
+                    <apex:inputCheckbox id="HasEnrichedContent" value="{!ParamHasEnrichedContent}" selected="{!ParamHasEnrichedContent}"/>
+                    <span>Has enriched content?</span> 
+                </div>
+                <div class="field searchbtnField">
+                    <apex:commandButton action="{!Search}" value="Search" styleClass="btn" onclick="SetMultiSelectVal();"/>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        
+        <apex:outputPanel layout="block" rendered="{!ShowProductList}">
+	        <div class="bRelatedList">
+	            <div class="bSubBlock brandSecondaryBrd secondaryPalette">       
+	                <div class="pbBody">
+	                    <table class="list" cellspacing="0" cellpadding="0" border="0" width="100%">
+	                        <tbody>
+	                            <tr class="headerRow">
+	                                <th><a href="{!SortUrl.SKU}">SKU</a></th>
+	                                <th><a href="{!SortUrl.Model}">Model</a></th>
+	                                <th><a href="{!SortUrl.Title}">Title</a></th>
+	                                <th><a href="{!SortUrl.Description}">Description</a></th>
+	                                <th><a href="{!SortUrl.ProductGroup}">Product Group</a></th>
+	                                <th><a href="{!SortUrl.CostEx}">Cost Ex</a></th>
+	                                <th><a href="{!SortUrl.CostInc}">Cost Inc</a></th>
+	                                <th><a href="{!SortUrl.GoCost}">Go Cost</a></th>
+	                                <th><a href="{!SortUrl.TicketPrice}">Ticket Price</a></th>
+	                                <th><a href="{!SortUrl.PromoPrice}">Promotion Price</a></th>
+	                                <th><a href="{!SortUrl.SeasonCode}">Season Code</a></th>
+	                                <th><a href="{!SortUrl.SOH}">Stock On Hand</a></th>
+	                           </tr>
+	                           
+	                           <apex:repeat value="{!SearchResultsList}" var="results">
+		                           <apex:repeat value="{!results}" var="result">
+			                           <tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">                           
+			                               <td><a href="{!'/' + result.ID}" target="_blank">{!result.SKU}</a></td>
+			                               <td>{!result.Model}</td>
+			                               <td>{!result.Title}</td>
+			                               <td>{!result.Description}</td>
+			                               <td>{!result.ProductGroup}</td>
+			                               <td>{!result.CostEx}</td>
+			                               <td>{!result.CostInc}</td>
+			                               <td>{!result.GoCost}</td>
+			                               <td>{!result.TicketPrice}</td>
+			                               <td>{!result.PromoPrice}</td>
+			                               <td>{!result.SeasonCode}</td>
+			                               <td>{!result.SOH}</td>
+			                           </tr>
+		                           </apex:repeat> 
+	                           </apex:repeat>
+	
+	                        </tbody>
+	                    </table>                   
+	                    <div class="fewerMore">
+	                    	<apex:outputLink value="{! ShowFewerUrl}" rendered="{!ShowFewerUrl != ''}">
+								fewer<img class="fewerArrow" title="Show Fewer" alt="Show Fewer" src="/s.gif"/>
+	                    	</apex:outputLink>
+	                    	<apex:outputPanel rendered="{!ShowFewerUrl != '' && ShowMoreUrl != ''}">&nbsp;/&nbsp;</apex:outputPanel>
+	                    	<apex:outputLink value="{!ShowMoreUrl}" styleClass="showMore" rendered="{!ShowMoreUrl != ''}">
+	                    		<img class="moreArrow" title="Show More" alt="Show More" src="/s.gif"/>more
+	                    	</apex:outputLink>	
+	                    </div>
+	                    <apex:outputPanel styleClass="msgBox" rendered="{!OverMaxPageSize == true}">More than 3000 products found, please narrow your search criterias</apex:outputPanel>                    	             
+	                </div>
+	            </div>
+	         </div>
+         </apex:outputPanel>
+    </apex:form>
+</apex:page>

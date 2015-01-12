@@ -1,0 +1,6 @@
+<apex:page controller="FinaliseOrderController" action="{!Finalise}">
+	<apex:outputPanel rendered="{!ShowErrorMessage}">
+		<p>{!ErrorMessage}</p>
+		<p>Click <a href="/{!OrderId}">here</a> to go back to the order.</p>
+	</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,605 @@
+<apex:page action="{!Init}" controller="DashboardReportController"  sidebar="false" showChat="false" >
+<apex:includeScript value="{!URLFOR($Resource.jquery, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.jqplot_min, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.jqplot_barRenderer, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.jqplot_pointLabels, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.jqplot_categoryAxisRenderer, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.jqplot_canvasTextRenderer, '')}"  />
+<apex:includeScript value="{!URLFOR($Resource.jqplot_canvasAxisTickRenderer, '')}"  />
+<!--[if lt IE 9]><apex:includeScript value="{!URLFOR($Resource.excanvas, '')}"  /><![endif]-->
+<apex:stylesheet value="{!URLFOR($Resource.stylesheets, '/stylesheets/main.css')}"  />
+<apex:stylesheet value="{!URLFOR($Resource.jqplot_css)}" />
+
+<!-- Begin Default Content REMOVE THIS -->
+<apex:form id="theform">
+	<div class="bPageTitle">
+	    <div class="ptBody">
+	        <div class="content">
+	            <img title="Products" class="pageTitleIcon" alt="Products" src="/s.gif" />
+	            <h1 class="pageType">Dashboard Reports</h1>
+	            <h2 class="pageDescription">Listed in order</h2>
+	        </div>
+	    </div>
+	</div>
+	<div class="bSubBlock brandSecondaryBrd secondaryPalette report">
+		<h3 class="lbHeader">DIVISION SALES REPORT</h3>
+		<div id="dsChart" style="width:1200px; height:260px; margin-bottom:20px;"></div>
+		<div id="dsgpChart" style="width:1200px; height:260px;"></div>
+		<div class="clear"></div>
+	</div>
+	<div class="bSubBlock brandSecondaryBrd secondaryPalette report">
+		<h3 class="lbHeader">STATE SALES REPORT</h3>
+		<div id="ssChart" style="width:550px; height:260px; float:left; margin-right:20px;"></div>
+		<div id="ssgpChart" style="width:550px; height:260px; float:left; margin-right:20px;"></div>
+		<div class="clear"></div>
+	</div>	
+	
+	<apex:actionstatus stoptext="" id="sstatus" />
+	<apex:outputPanel id="SalespeopleReportPanel">
+		<div class="bRelatedList">
+			<div class="bSubBlock brandSecondaryBrd secondaryPalette report">
+				<div class="pbBody">
+					<h3 class="lbHeader">SALESPERSON SALES REPORT</h3>
+					<apex:outputPanel id="SalespeopleReportMTDPanel">
+						<apex:outputPanel style="display:none;" >
+							<apex:outputPanel styleClass="personSales_MTD_JSON">
+								{!personSales_MTD_JSON} <br/>
+						    </apex:outputPanel>
+						    <apex:outputPanel styleClass="personTarget_MTD_JSON">
+								{!personTarget_MTD_JSON} <br/>
+						    </apex:outputPanel>
+						    <apex:outputPanel styleClass="salesPersonList_JSON">
+								{!salesPersonList_JSON} <br/>
+						    </apex:outputPanel>
+						    <apex:outputPanel styleClass="personSalesGP_MTD_JSON">
+								{!personSalesGP_MTD_JSON} <br/>
+						    </apex:outputPanel>
+						    <apex:outputPanel styleClass="personTargetGP_MTD_JSON">
+								{!personTargetGP_MTD_JSON} <br/>
+						    </apex:outputPanel>
+						    <apex:outputPanel styleClass="salesPersonIdList_JSON">
+								{!salesPersonIdList_JSON} <br/>
+						    </apex:outputPanel>
+						    <apex:outputPanel styleClass="personMax">
+								{!personMax} <br/>
+						    </apex:outputPanel>
+						    <apex:outputPanel styleClass="personGPMax">
+								{!personGPMax} <br/>
+						    </apex:outputPanel>
+					    </apex:outputPanel>
+						
+						<table class="list fl" cellspacing="0" cellpadding="0" border="0" width="500" style="margin-right:50px; margin-bottom:20px;">
+						  <thead>
+							  <tr class="headerRow">
+							    <th>Top 10 Salespeople MTD</th>
+							    <th>Sales</th>
+							    <th>GP$</th>
+							  </tr>
+						  </thead>
+						  <tbody>
+							  <apex:repeat value="{!personSalesTop10_MTD}" var="Item_Obj">  
+						          <tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+								    <td>
+								    	<apex:outputLink value="../apex/DashboardReportDetail">
+									        {!Item_Obj.OwnerName}
+									        <apex:param name="oid" value="{!Item_Obj.OwnerId}"/>
+									        <apex:param name="timetype" value="MTD"/>
+									    </apex:outputLink>
+								    </td>
+								    <td>
+								    	<apex:outputText value="{0,number,$#,###.##}" >
+				                            <apex:param value="{!Item_Obj.TotalSales}" /> 
+				                        </apex:outputText>
+								    </td>
+								    <td>
+								    	<apex:outputText value="{0,number,$#,###.##}" >
+				                            <apex:param value="{!Item_Obj.TotalGP}" /> 
+				                        </apex:outputText>
+				                    </td>
+								  </tr> 
+						      </apex:repeat>
+						      <tr class="dataRow even first">
+						      	<td>
+						      		<apex:commandLink action="{!LoadAllSalespeople}" oncomplete="rerenderSalespeopleReportMTDPanel();" status="sstatus">
+						      			Show All
+		                                <apex:param value="All" name="topType"/>
+		                                <apex:param value="MTD" name="timeType"/>
+		                            </apex:commandLink> 
+						      	</td>
+						      	<td></td>
+						      	<td></td>
+						      </tr>
+					       </tbody>
+						</table>
+					</apex:outputPanel>
+					<apex:outputPanel id="SalespeopleReportYTDPanel">
+						<table class="list fl" cellspacing="0" cellpadding="0" border="0" width="500" style="margin-bottom:20px;">
+						  <thead>
+							  <tr class="headerRow">
+							    <th>Top 10 Salespeople YTD</th>
+							    <th>Sales</th>
+							    <th>GP$</th>
+							  </tr>
+						  </thead>
+						  <tbody>
+							  <apex:repeat value="{!personSalesTop10_YTD}" var="Item_Obj">  
+						          <tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+								    <td>
+								    	<apex:outputLink value="../apex/DashboardReportDetail">
+									        {!Item_Obj.OwnerName}
+									        <apex:param name="oid" value="{!Item_Obj.OwnerId}"/>
+									        <apex:param name="timetype" value="YTD"/>
+									    </apex:outputLink>
+								    </td>
+								    <td>
+								    	<apex:outputText value="{0,number,$#,###.##}" >
+				                            <apex:param value="{!Item_Obj.TotalSales}" /> 
+				                        </apex:outputText>
+								    </td>
+								    <td>
+								    	<apex:outputText value="{0,number,$#,###.##}" >
+				                            <apex:param value="{!Item_Obj.TotalGP}" /> 
+				                        </apex:outputText>
+				                    </td>
+								  </tr> 
+						      </apex:repeat>
+						      <tr class="dataRow even first">
+						      	<td>
+						      		<apex:commandLink action="{!LoadAllSalespeople}" oncomplete="rerenderSalespeopleReportYTDPanel();" status="sstatus">
+						      			Show All
+		                                <apex:param value="All" name="topType"/>
+		                                <apex:param value="YTD" name="timeType"/>
+		                            </apex:commandLink> 
+						      	</td>
+						      	<td></td>
+						      	<td></td>
+						      </tr>
+					      </tbody>
+						</table>
+					</apex:outputPanel>
+					<div class="clear"></div>
+					<apex:outputPanel id="SalespeopleReportMTDChartPanel">
+						<div id="spsChart" style="width:1200px; height:260px; margin-bottom:20px;"></div>
+						<div id="spsgpChart" style="width:1200px; height:260px;"></div>
+					</apex:outputPanel>
+				</div>
+			</div>
+		</div>
+		<apex:actionFunction name="rerenderSalespeopleReportMTDPanel" rerender="SalespeopleReportMTDPanel" oncomplete="refreshSalespeopleDashboardChart();"/>
+		<apex:actionFunction name="rerenderSalespeopleReportMTDChartPanel" rerender="SalespeopleReportMTDChartPanel" />
+		<apex:actionFunction name="rerenderSalespeopleReportYTDPanel" rerender="SalespeopleReportYTDPanel"/>
+	</apex:outputPanel>
+	
+	<apex:outputPanel id="CustomerSalesReportPanel">
+		<div class="bRelatedList">
+			<div class="bSubBlock brandSecondaryBrd secondaryPalette report">
+				<div class="pbBody">
+					<h3 class="lbHeader">CUSTOMER SALES REPORT</h3>
+					<apex:outputPanel id="CustomerSalesReportMTDPanel">
+						<table class="list fl" cellspacing="0" cellpadding="0" border="0" width="500" style="margin-right:50px;">
+						  <thead>
+							  <tr class="headerRow">
+							    <th>Top 10 Accounts MTD</th>
+							    <th>Sales</th>
+							    <th>GP$</th>
+							  </tr>
+						  </thead>
+						  <tbody>
+							  <apex:repeat value="{!accountSalesTop10_MTD}" var="Item_Obj">  
+						          <tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+								    <td>
+								    	<apex:outputLink value="../apex/DashboardReportDetail">
+									        {!Item_Obj.AccountName}
+									        <apex:param name="aid" value="{!Item_Obj.AccountId}"/>
+									        <apex:param name="timetype" value="MTD"/>
+									    </apex:outputLink>
+								    </td>
+								    <td>
+								    	<apex:outputText value="{0,number,$#,###.##}" >
+				                            <apex:param value="{!Item_Obj.TotalSales}" /> 
+				                        </apex:outputText>
+								    </td>
+								    <td>
+								    	<apex:outputText value="{0,number,$#,###.##}" >
+				                            <apex:param value="{!Item_Obj.TotalGP}" /> 
+				                        </apex:outputText>
+				                    </td>
+								  </tr> 
+						      </apex:repeat>
+						      <tr class="dataRow even first">
+						      	<td>
+						      		<apex:commandLink action="{!LoadAllAccount}" oncomplete="rerenderCustomerSalesReportMTDPanel();" status="sstatus">
+						      			Show Top 50
+		                                <apex:param value="Top50" name="topType"/>
+		                                <apex:param value="MTD" name="timeType"/>
+		                            </apex:commandLink> 
+						      	</td>
+						      	<td></td>
+						      	<td></td>
+						      </tr>
+					       </tbody>
+						</table>
+					</apex:outputPanel>
+					
+					<apex:outputPanel id="CustomerSalesReportYTDPanel">
+						<table class="list fl" cellspacing="0" cellpadding="0" border="0" width="500">
+						  <thead>
+							  <tr class="headerRow">
+							    <th>Top 10 Accounts YTD</th>
+							    <th>Sales</th>
+							    <th>GP$</th>
+							  </tr>
+						  </thead>
+						  <tbody>
+							  <apex:repeat value="{!accountSalesTop10_YTD}" var="Item_Obj">  
+						          <tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+								    <td>
+								    	<apex:outputLink value="../apex/DashboardReportDetail">
+									        {!Item_Obj.AccountName}
+									        <apex:param name="aid" value="{!Item_Obj.AccountId}"/>
+									        <apex:param name="timetype" value="YTD"/>
+									    </apex:outputLink>
+								    </td>
+								    <td>
+								    	<apex:outputText value="{0,number,$#,###.##}" >
+				                            <apex:param value="{!Item_Obj.TotalSales}" /> 
+				                        </apex:outputText>
+								    </td>
+								    <td>
+								    	<apex:outputText value="{0,number,$#,###.##}" >
+				                            <apex:param value="{!Item_Obj.TotalGP}" /> 
+				                        </apex:outputText>
+				                    </td>
+								  </tr> 
+						      </apex:repeat>
+						      <tr class="dataRow even first">
+						      	<td>
+						      		<apex:commandLink action="{!LoadAllAccount}" oncomplete="rerenderCustomerSalesReportYTDPanel();" status="sstatus">
+						      			Show Top 50
+		                                <apex:param value="Top50" name="topType"/>
+		                                <apex:param value="YTD" name="timeType"/>
+		                            </apex:commandLink> 
+						      	</td>
+						      	<td></td>
+						      	<td></td>
+						      </tr>
+					      </tbody>
+						</table>
+					</apex:outputPanel>
+					<div class="clear"></div>
+				</div>
+			</div>
+		</div>
+		<apex:actionFunction name="rerenderCustomerSalesReportMTDPanel" rerender="CustomerSalesReportMTDPanel" />
+		<apex:actionFunction name="rerenderCustomerSalesReportYTDPanel" rerender="CustomerSalesReportYTDPanel" />
+	</apex:outputPanel>
+	
+	<div class="bSubBlock brandSecondaryBrd secondaryPalette report" style="display:none;">
+		<h3 class="lbHeader">OPPORTUNITY PIPELINE REPORT</h3>
+		<p>The Opportunity Pipeline report has no custom requirement and can display natively.</p>
+		<p>This report should be fairly extensive, so can the State totals just be displayed on the dashboard, and the individual Salespeople's results available by clicking 'Show full Report'</p>	
+	</div>
+	<div class="bRelatedList" style="display:none;">
+		<div class="bSubBlock brandSecondaryBrd secondaryPalette report">
+			<div class="pbBody">
+				<h3 class="lbHeader">FREIGHT RECOVERED REPORT</h3>
+				<table class="list fl" cellspacing="0" cellpadding="0" border="0" width="500" style="margin-right:50px; margin-bottom:20px;">
+					<tbody>
+						<tr class="headerRow">
+							<th>Freight Recovered this week</th>
+							<th>$0.00</th>
+						</tr>
+						<tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+							<td>Number of Delivery Orders this week</td>
+							<td>100</td>
+						</tr>
+						<tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+							<td>Freight Recovered this month</td>
+							<td>$0.00</td>
+						</tr>
+						<tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+							<td>Number of Delivery Orders this month</td>
+							<td>500</td>
+						</tr>
+					</tbody>
+				</table>
+				<table class="list fl" cellspacing="0" cellpadding="0" border="0" width="500" style="margin-bottom:20px;">
+					<tbody>
+						<tr class="headerRow">
+							<th>Freight Recovered this week</th>
+							<th>$0.00</th>
+						</tr>
+						<tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+							<td>Number of Delivery Orders this week</td>
+							<td>100</td>
+						</tr>
+						<tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+							<td>Freight Recovered this month</td>
+							<td>$0.00</td>
+						</tr>
+						<tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+							<td>Number of Delivery Orders this month</td>
+							<td>500</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="clear"></div>
+				<div id="chart7" style="width:1400px; height:260px;"></div>
+			</div>
+		</div>
+	</div>
+</apex:form>
+<!-- End Default Content REMOVE THIS -->
+
+<script type="text/javascript">
+$j = jQuery.noConflict();
+
+$j(document).ready(function(){
+	InitAllChart();
+});
+
+function InitAllChart(){
+	var salesDataArray = [{!divisionSales_MTD_JSON}];
+	var targetDataArray = [{!divisionTarge_MTD_JSON}];
+	var ticks = [{!divisionSalesList_JSON}];
+	var allDataArray = [salesDataArray,targetDataArray];
+	var max = calculateTickOptionMax({!divisionMax});
+	var number = calculateNumberTicks({!divisionMax});
+	var options = calculateRenderOptions(ticks.length);
+	initDashboardChart('dsChart', "Sales vs Target (Sales Quota)", ticks, allDataArray, options, { show: true}, 'Division Sales', 'Division Sales Target', {angle: 0}, number, 0, max);
+	   
+	salesDataArray = [{!divisionSalesGP_MTD_JSON}];
+	targetDataArray = [{!divisionTargeGP_MTD_JSON}];
+	ticks = [{!divisionSalesList_JSON}];
+	allDataArray = [salesDataArray,targetDataArray];
+	max = calculateTickOptionMax({!divisionGPMax});
+	number = calculateNumberTicks({!divisionGPMax});
+	options = calculateRenderOptions(ticks.length);
+	initDashboardChart('dsgpChart', "GP$ vs Target (GP$ Quota)", ticks, allDataArray, options, { show: true}, 'Division GP$', 'Division Target GP$', {angle: 0}, number, 0, max);
+	   
+	salesDataArray = [{!stateSales_MTD_JSON}];
+	targetDataArray = [{!stateTarget_MTD_JSON}]; 
+	ticks = [{!stateList_JSON}]; 
+	allDataArray = [salesDataArray,targetDataArray];
+	max = calculateTickOptionMax({!stateMax});
+	number = calculateNumberTicks({!stateMax});
+	options = calculateRenderOptions(ticks.length);
+	initDashboardChart('ssChart', "Sales vs Target (Sales Quota) MTD", ticks, allDataArray, {fillToZero: true,barMargin:30,barPadding: 0,barWidth: 15}, { show: false}, 'State Sales', 'State Sales Target', {angle: 0}, number, 0, max);
+	
+	salesDataArray = [{!stateSalesGP_MTD_JSON}];
+	targetDataArray = [{!stateTargetGP_MTD_JSON}]; 
+	ticks = [{!stateList_JSON}]; 
+	allDataArray = [salesDataArray,targetDataArray];
+	max = calculateTickOptionMax({!stateGPMax});
+	number = calculateNumberTicks({!stateGPMax});
+	options = calculateRenderOptions(ticks.length);
+	initDashboardChart('ssgpChart', "GP$ vs Target (GP$ Quota) MTD", ticks, allDataArray, {fillToZero: true,barMargin:30,barPadding: 0,barWidth: 12}, { show: false}, 'State GP$', 'State Target GP$', {angle: 0}, number, 0, max);
+	
+	salesDataArray = [{!personSales_MTD_JSON}];
+	targetDataArray = [{!personTarget_MTD_JSON}];
+	ticks = [{!salesPersonList_JSON}];
+	allDataArray = [salesDataArray,targetDataArray];
+	max = calculateTickOptionMax({!personMax});
+	number = calculateNumberTicks({!personMax});
+	options = calculateRenderOptions(ticks.length);
+	calculateDashboradDivWidth(ticks.length, 'spsChart');
+	initDashboardChart('spsChart', "Sales vs Target (Sales Quota) MTD", ticks, allDataArray, options, { show: false}, 'Salesperson Sales', 'Salesperson Sales Target', {angle: -40}, number, 0, max);
+	
+	salesDataArray = [{!personSalesGP_MTD_JSON}]; 
+	targetDataArray = [{!personTargetGP_MTD_JSON}];
+	ticks = [{!salesPersonList_JSON}];
+	allDataArray = [salesDataArray,targetDataArray];
+   	max = calculateTickOptionMax({!personGPMax});
+	number = calculateNumberTicks({!personGPMax});
+	options = calculateRenderOptions(ticks.length);
+	calculateDashboradDivWidth(ticks.length, 'spsgpChart');
+   	initDashboardChart('spsgpChart', "GP$ vs Target (GP$ Quota) MTD", ticks, allDataArray, options, { show: false}, 'Salesperson GP$', 'Salesperson GP$ Target', {angle: -40}, number, 0, max);
+	
+	$j("#dsChart").bind("jqplotDataClick",function(ev, seriesIndex, pointIndex, data){
+		var timeArray = $j.trim([{!divisionSalesList_JSON}][pointIndex]).split(' ');
+		var month = convertMonthToNumber(timeArray[0]);
+		var year = timeArray[1]
+	    window.location.href="../apex/DashboardReportDetail?type=ds&month=" + month + "&year=" + year + "&datatype=" + seriesIndex;
+	});
+	 
+	$j("#dsgpChart").bind("jqplotDataClick",function(ev, seriesIndex, pointIndex, data){
+		var timeArray = $j.trim([{!divisionSalesList_JSON}][pointIndex]).split(' ');
+		var month = convertMonthToNumber(timeArray[0]);
+		var year = timeArray[1]
+	    window.location.href="../apex/DashboardReportDetail?type=dsgp&month=" + month + "&year=" + year + "&datatype=" + seriesIndex;
+	});
+	
+	$j("#ssChart").bind("jqplotDataClick",function(ev, seriesIndex, pointIndex, data){
+		var state = [{!stateList_JSON}][pointIndex];
+	    window.location.href="../apex/DashboardReportDetail?type=ss&state=" + state + "&datatype=" + seriesIndex;
+	});
+	 
+	$j("#ssgpChart").bind("jqplotDataClick",function(ev, seriesIndex, pointIndex, data){
+		var state = [{!stateList_JSON}][pointIndex];
+	    window.location.href="../apex/DashboardReportDetail?type=ssgp&state=" + state + "&datatype=" + seriesIndex;
+	});
+	
+	$j("#spsChart").bind("jqplotDataClick",function(ev, seriesIndex, pointIndex, data){
+		var person = [{!salesPersonIdList_JSON}][pointIndex];
+	    window.location.href="../apex/DashboardReportDetail?type=sps&person=" + person + "&datatype=" + seriesIndex;
+	});
+	 
+	$j("#spsgpChart").bind("jqplotDataClick",function(ev, seriesIndex, pointIndex, data){
+		var person = [{!salesPersonIdList_JSON}][pointIndex];
+	    window.location.href="../apex/DashboardReportDetail?type=spsgp&person=" + person + "&datatype=" + seriesIndex;
+	}); 
+	
+	$j.jqplot.sprintf.thousandsSeparator = ',';
+	$j.jqplot.sprintf.decimalMark = '.';
+}
+	
+function initDashboardChart(chartDivId, title,ticks, ss, renderOptions, pointLabels, labelTop, labelBottom, tickOptions, numberTicks, min, max){
+	var plot1 = $j.jqplot(chartDivId, ss, {
+			title:title,
+			seriesColors: [ "#4f81bd", "#c0504d"],
+			grid:{
+				drawBorder: false,
+				shadow: false,
+				borderWidth:1,
+				borderColor:"#999",
+				gridLineColor:"#999",
+				drawGridlines: true,
+				background:"#f8f8f8"
+			} ,
+			canvasOverlay: {
+	            show: true
+	        },
+	      	seriesDefaults: {showMarker:false}, 							
+	        seriesDefaults:{
+	            renderer:$j.jqplot.BarRenderer,
+	            rendererOptions: renderOptions,
+				pointLabels: pointLabels
+	        },
+	        series:[
+	            {label:labelTop},
+	            {label:labelBottom},
+	        ],
+			legend: {
+	            show: true,
+	            placement: 'outsideGrid'
+	        },
+	        axes: {
+	            xaxis: {
+	                renderer: $j.jqplot.CategoryAxisRenderer,
+	                ticks: ticks,
+	                tickRenderer: $j.jqplot.CanvasAxisTickRenderer,
+				    tickOptions: tickOptions
+	            },
+	            yaxis: {
+	                pad: 1.2,
+	                tickOptions: {formatString: "$%'.2f"},min:min, max:max,
+					numberTicks:numberTicks
+	            }
+	        }
+	    });
+}
+
+function calculateTickOptionMax(maxValue){
+	var currentMax = maxValue;
+	var firstNumber = Math.round(maxValue).toString().substring(0,1);
+	var secondNumber = Math.round(maxValue).toString().substring(1,2);
+	if(firstNumber >= 4){
+		if(secondNumber > 5){
+			currentMax = (+Math.round(maxValue).toString().substring(0,1) + 3) * Math.pow(10, Math.round(maxValue).toString().length - 1);
+		}
+		else{
+			currentMax = (+Math.round(maxValue).toString().substring(0,1) + 2) * Math.pow(10, Math.round(maxValue).toString().length - 1);
+		}
+	}
+	else{
+		currentMax = (+Math.round(maxValue).toString().substring(0,2) + 5) * Math.pow(10, Math.round(maxValue).toString().length - 2);
+
+	}
+	return currentMax
+}
+
+function calculateNumberTicks(maxValue){
+	var number = 11;
+	//if(+Math.round(maxValue).toString().substring(0,1) >= 5){
+		//number = +Math.round(maxValue).toString().substring(0,1) + 3;
+	//}
+	return number;
+}
+
+function calculateRenderOptions(barCount){
+	var options = {fillToZero: true,barMargin:30,barPadding: 0,barWidth: 70};
+	if(barCount > 3 && barCount < 20){
+		var margin = 30; // 400/barCount;
+		var width = 200/barCount;
+		options = "{fillToZero: true,barMargin:" + margin + ",barPadding: 0,barWidth: " + width + "}";
+	}
+	if(barCount >= 20){
+		var options = {fillToZero: true,barMargin:30,barPadding: 0,barWidth: 15};
+	}
+	return options;
+}
+
+function calculateDashboradDivWidth(barCount, divId){
+	if(barCount > 20){
+		$j("#" + divId).width( 1200 + (barCount - 20) * 50);
+	}
+}
+
+function refreshSalespeopleDashboardChart(){
+	$j("#spsChart").html('');
+	var salesDataArray = $j(".personSales_MTD_JSON").text().replace(/\"/g, '').slice(0,-1).split(',');
+	var targetDataArray = $j(".personTarget_MTD_JSON").text().replace(/\"/g, '').slice(0,-1).split(','); 
+	var ticks = $j(".salesPersonList_JSON").text().replace(/\"/g, '').slice(0,-1).split(',');
+	var allDataArray = [salesDataArray,targetDataArray];
+	var max = calculateTickOptionMax($j(".personMax").text().replace(/\"/g, ''));
+	var number = calculateNumberTicks($j(".personMax").text().replace(/\"/g, ''));
+	var options = calculateRenderOptions(ticks.length);
+	calculateDashboradDivWidth(ticks.length, 'spsChart');
+	initDashboardChart('spsChart', "Sales vs Target (Sales Quota) MTD", ticks, allDataArray, options, { show: false}, 'Salesperson Sales', 'Salesperson Sales Target', {angle: -40}, number, 0, max);
+	
+	$j("#spsgpChart").html('');
+	salesDataArray = $j(".personSalesGP_MTD_JSON").text().replace(/\"/g, '').slice(0,-1).split(',');
+	targetDataArray = $j(".personTargetGP_MTD_JSON").text().replace(/\"/g, '').slice(0,-1).split(','); 
+	ticks = $j(".salesPersonList_JSON").text().replace(/\"/g, '').slice(0,-1).split(','); 
+   	allDataArray = [salesDataArray,targetDataArray];
+   	max = calculateTickOptionMax($j(".personGPMax").text().replace(/\"/g, ''));
+	number = calculateNumberTicks($j(".personGPMax").text().replace(/\"/g, ''));
+	options = calculateRenderOptions(ticks.length);
+	calculateDashboradDivWidth(ticks.length, 'spsgpChart');
+   	initDashboardChart('spsgpChart', "GP$ vs Target (GP$ Quota) MTD", ticks, allDataArray, options, { show: false}, 'Salesperson GP$', 'Salesperson GP$ Target', {angle: -40}, number, 0, max);
+	
+	$j("#spsChart").bind("jqplotDataClick",function(ev, seriesIndex, pointIndex, data){
+	    var person = $j(".salesPersonIdList_JSON").text().replace(/\"/g, '').slice(0,-1).split(',')[pointIndex];
+	    window.location.href="../apex/DashboardReportDetail?type=sps&person=" + person + "&datatype=" + seriesIndex;
+	});
+	 
+	$j("#spsgpChart").bind("jqplotDataClick",function(ev, seriesIndex, pointIndex, data){
+	    var person = $j(".salesPersonIdList_JSON").text().replace(/\"/g, '').slice(0,-1).split(',')[pointIndex];
+	    window.location.href="../apex/DashboardReportDetail?type=spsgp&person=" + person + "&datatype=" + seriesIndex;
+	}); 
+}
+
+function convertMonthToNumber(month){
+	var monthNumber = 1;
+	if(month == 'January'){
+		monthNumber = 1;
+	}
+	else if(month == 'February'){
+		monthNumber = 2;
+	}
+	else if(month == 'March'){
+		monthNumber = 3;
+	}
+	else if(month == 'April'){
+		monthNumber = 4;
+	}
+	else if(month == 'May'){
+		monthNumber = 5;
+	}
+	else if(month == 'June'){
+		monthNumber = 6;
+	}
+	else if(month == 'July'){
+		monthNumber = 7;
+	}
+	else if(month == 'August'){
+		monthNumber = 8;
+	}
+	else if(month == 'September'){
+		monthNumber = 9;
+	}
+	else if(month == 'October'){
+		monthNumber = 10;
+	}
+	else if(month == 'November'){
+		monthNumber = 11;
+	}
+	else if(month == 'December'){
+		monthNumber = 12;
+	}
+	return monthNumber;
+}
+
+</script>
+
+</apex:page>

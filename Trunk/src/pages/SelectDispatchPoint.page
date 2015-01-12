@@ -1,0 +1,661 @@
+<apex:page controller="SelectDispatchPointController" action="{!Init}">
+	<apex:includeScript value="{!URLFOR($Resource.jquery, '')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.stylesheets, '/stylesheets/main.css')}" />
+
+	<!-- Begin Default Content REMOVE THIS -->
+	<apex:form >
+		<div id="testHidden" style="display: none;"></div>
+		<div id="MoreHidden" style="display: none;">10</div>
+		
+		<div id="multipleHidden" style="display:none;"></div>
+		<div class="bPageTitle">
+			<div class="ptBody">
+				<div class="content">
+					<img title="Products" class="pageTitleIcon" alt="Products"
+						src="/s.gif" />
+					<h1 class="pageType">Dispatch Point</h1>
+					<h2 class="pageDescription">Home</h2>
+				</div>
+			</div>
+			<div class="ptBreadcrumb">
+				&nbsp;&nbsp;<a href="#">Back to Order</a>
+			</div>
+		</div>
+
+		<div class="bSubBlock brandSecondaryBrd secondaryPalette">
+			<div id="DispathPointListDiv" class="pbBody">
+				<table class="list" width="100%" cellspacing="0" cellpadding="0"
+					border="0">
+					<thead>
+						<tr class="headerRow">
+							<th style="width: 20px;"><input type="checkbox" id="disCkAll"  /></th>
+							<th style="display: none">ID</th>
+							<th>SKU</th>
+							<th>Line item name</th>
+							<th>Qty</th>
+							<th>Sales Price</th>
+							<th>GP $</th>
+							<th>GP %</th>
+							<th>Freight Method</th>
+							<th>Dispatch Point</th>
+						</tr>
+					</thead>
+					<tbody>
+						<apex:repeat value="{!OrderLineItemList}" var="Item_Obj">
+							<tr class="dataRow even first"
+								onmouseover="if (window.hiOn){hiOn(this);}"
+								onmouseout="if (window.hiOff){hiOff(this);}"
+								onfocus="if (window.hiOn){hiOn(this);}"
+								onblur="if (window.hiOff){hiOff(this);}">
+								<td><input type="checkbox" name="singleCk" /></td>
+								<td style="display: none" class="id">{!Item_Obj.Id}</td>
+								<td class='clsSKU'>{!Item_Obj.SKU}</td>
+								<td>{!Item_Obj.LineItemName}</td>
+								<td>{!Item_Obj.Quantity}</td>
+								<td class='value'><apex:outputText value="{0, number, currency}">
+										<apex:param value="{!Item_Obj.SalesPriceInc}" />
+									</apex:outputText>
+								</td>
+								<td class='value'><apex:outputText value="{0, number, currency}">
+										<apex:param value="{!Item_Obj.GP}" />
+									</apex:outputText>
+								</td>
+								<td class='value'><apex:outputText value="{0, number, ###,###,##0.00}">
+										<apex:param value="{!Item_Obj.GPPercent}" />
+									</apex:outputText>
+								</td>
+								<td>{!Item_Obj.FreightMethod}</td>
+								<td>{!Item_Obj.DispatchPoint}</td>
+							</tr>
+						</apex:repeat>
+					</tbody>
+				</table>
+				<div class="checkStore">
+					<apex:commandLink onclick="CallCheckStockAction();"
+						oncomplete="CheckStockComplete();">Check Stock</apex:commandLink>
+					<apex:actionFunction name="rerenderStoresPanel"
+						action="{!CheckStock}" rerender="StoresPanel" oncomplete="CallShowMoreComplete();">
+						<apex:param name="OrderLineId" value="" />
+						<apex:param name="SelectedSku" value="" />
+					</apex:actionFunction>
+				</div>
+			</div>
+		</div>
+
+		<apex:outputPanel id="StoresPanel">
+		<div id="TotalHidden" style="display:none;">{!TotalCount}</div>
+			<div id='oneItemId'
+				class="bSubBlock brandSecondaryBrd secondaryPalette selectStore">
+				<div class="pbBody">
+					<p>One product was ticked</P>
+					<table class="list" width="100%" cellspacing="0" cellpadding="0"
+						border="0">
+						<tbody>
+							<tr class="headerRow">
+								<th>JB Hi Fi Store</th>
+								<th>State</th>
+								<th>Qty</th>
+								<th>On Order</th>
+								<th style="width: 20px;"></th>
+							</tr>
+							<apex:repeat value="{!ProductList}" var="result">
+								<tr class="dataRow even first"
+									onmouseover="if (window.hiOn){hiOn(this);}"
+									onmouseout="if (window.hiOff){hiOff(this);}"
+									onfocus="if (window.hiOn){hiOn(this);}"
+									onblur="if (window.hiOff){hiOff(this);}">
+									<td class="clsstockName">{!result.StoreName}</td>
+									<td>{!result.StoreState}</td>
+									<td>{!result.Quantity}</td>
+									<td>{!result.OnOrder}</td>
+									<td class="clsStoreId" style="display:none;">{!result.StoreId}</td>
+									<td><input type="radio" name="rd" /></td>
+								</tr>
+							</apex:repeat>
+						</tbody>
+					</table>
+
+					
+							
+					<div class="fewerMore">
+					<div style="width:100px;height:15px; margin:0 auto;">
+						<div id="idFewer" style="float:left;">
+							<apex:commandLink onclick="CallShowFewerAction();" oncomplete="CheckStockComplete();">Fewer</apex:commandLink>
+							
+						</div>
+						<img class="fewerArrow" style="float:left;" title="Show Fewer" src="/s.gif" alt="Show Fewer" />
+						
+						<div id="idSingnal" style="float:left;">
+						/
+						</div>
+						<img class="moreArrow" style="float:left; margin-top:2px;" title="Show More" src="/s.gif" alt="Show More" />
+						<div id="idMore" style="float:left;">
+							<apex:commandLink onclick="CallShowMoreAction();" oncomplete="CheckStockComplete();">More</apex:commandLink>
+						</div>
+							
+					</div>		
+							
+						<apex:actionFunction name="rerenderStoresPanelShowMore"
+							action="{!ShowMore}" rerender="StoresPanel" oncomplete="CallShowMoreComplete()">
+							<apex:param name="OrderLineId" value="" />
+							<apex:param name="SelectedSku" value="" />
+							<apex:param name="ShowCount" value="" />
+						</apex:actionFunction>
+					</div>
+					
+					
+					
+					
+					
+					<div class="selectButtons">
+						<apex:commandButton onclick="CheckStockName()"
+							oncomplete="CheckDispatchComplete();" value="Save" title="Save"
+							styleClass="btn" />
+						<apex:actionFunction name="nUpt" action="{!btnUpdate}" rerender="">
+							<apex:param name="StockName" value="" />
+							<apex:param name="OrderLineId" value="" />
+						</apex:actionFunction>
+
+
+						<input type="button" value="Cancel" onclick="CancelOneItems()"
+							title="Select" name="cancel" class="btn" />
+					</div>
+			
+					
+					
+				</div>
+			</div>
+		</apex:outputPanel>
+
+		<div id="twoItemId"
+			class="bSubBlock brandSecondaryBrd secondaryPalette selectStore">
+			<div class="pbBody">
+				<p>two or more products were ticked</P>
+				
+				
+				
+				
+				
+				<apex:outputPanel id="MulSPanel">
+					<div id="resultR"></div>
+					<div id="jsTest" style="display:none;">{!StrMul}</div>
+				</apex:outputPanel>
+				
+				<div class="fewerMore">
+				<div style="width:100px;height:15px; margin:0 auto;">
+				
+				
+				<div id="idMulFewer" style="float:left;"><apex:commandLink onclick="MulFewer();" oncomplete="CheckStockComplete();">fewer</apex:commandLink></div>
+				
+				<img class="fewerArrow" style="float:left;" title="Show Fewer" src="/s.gif" alt="Show Fewer" />
+				<div id="idMulSingnal" style="float:left;">
+						/
+				</div>
+				<img class="moreArrow" style="float:left; margin-top:2px;" title="Show More" src="/s.gif" alt="Show More" />
+				
+				<div id="idMulMore" style="float:left;"><apex:commandLink onclick="MulMore();" oncomplete="CheckStockComplete();">more</apex:commandLink></div>
+				
+				
+					<apex:actionFunction name="rerenderMulStoresPanel"
+						action="{!MultipleClick}" rerender="MulSPanel" oncomplete="CallShowMulMoreComplete()">
+							<apex:param name="allSeletedSku" value="" />
+							<apex:param name="mulPage" value="" />
+							<apex:param name="orderlineId" value="" />
+							<apex:param name="count" value="" />
+							<apex:param name="allMultipleInfo" value="" />
+				</apex:actionFunction>
+				</div>
+				</div>
+
+				<div class="selectButtons">
+					<apex:commandButton onclick="CheckMultipleStock()"
+						oncomplete="CheckDispatchComplete();" value="Save" title="Save"
+						styleClass="btn" />
+					<apex:actionFunction name="mUpt" action="{!mulbtnUpdate}"
+						rerender="">
+						<apex:param name="StockInfo" value="" />
+					</apex:actionFunction>
+
+					<input type="button" value="Cancel" onclick="CancelTwoItems()"
+						title="Select" name="cancel" class="btn" />
+				</div>
+
+			</div>
+		</div>
+	</apex:form>
+	<!-- End Default Content REMOVE THIS -->
+
+	<script type="text/javascript">
+    $j = jQuery.noConflict();
+    
+    $j(document).ready(function() {   
+     	if(request('page') != null)
+        {
+        	var allDataRows = $j('#DispathPointListDiv .list .dataRow');
+        	$j.each(allDataRows, function(index, item){	
+        		if(request('SelectedSku') == $j(item).find('.clsSKU').text())
+        		{
+        			$j(item).find("input[name='singleCk']").attr('checked',true);
+        		}
+	    	});
+        }
+
+            
+            
+     	if(request('mp') != null)
+        {
+        	var orderlineId = request('id');    
+        	var mp = request('mp');  
+        	var sitems = request('sitems');
+        	var sdNum = request('sdNum');  
+        	var mInfo = request('mInfo'); 
+	    	SelectDispatchPointController.MultipleShow(sitems,mp,orderlineId,sdNum,mInfo,function(result, event) {
+		        result = $j('<div />').html(result).text();
+		        $j('#resultR').html(result);
+		        $j('#twoItemId').css('display','block');	
+       		}); 
+       		        	
+        } 	  			     
+        if(request('page') == null)
+        {
+        	$j('#oneItemId').css('display','none');
+        }
+        $j('#twoItemId').css('display','none');           
+        $j("#disCkAll").click(function () {
+	        if ($j("#disCkAll").is(":checked")) 
+	        {
+	       		 $j('input[name="singleCk"]').prop("checked",true); 
+	        }
+	        else
+	        {
+	        	 $j('input[name="singleCk"]').prop("checked",false); 
+	        }
+         }); 
+         $j("[name=singleCk]:checkbox").click(function () {
+                var flag = true;
+                $j("[name=singleCk]:checkbox").each(function () {
+                    if (!this.checked) {
+                        flag = false;
+                    }
+                });
+                $j("#disCkAll").prop("checked", flag);
+         });
+
+    });
+
+	function MulMore()
+	{
+		var allSeletedIds = '';
+    	var allSeletedSku = '';
+    	var allMultipleInfo = '';
+    	var allDataRows = $j('#DispathPointListDiv .list .dataRow');
+		var count = 0;
+		
+    	$j.each(allDataRows, function(index, item){
+    		if($j(item).find('input').prop('checked')){		
+    			count += 1;    			
+    			var selectedIds = $j(item).find('.id').text();
+    			var selectedSku = $j(item).find('.clsSKU').text();		
+    			if(allSeletedIds.indexOf(selectedIds) < 0){
+    				allSeletedIds += selectedIds + ';';
+    				allSeletedSku += selectedSku + ';';
+    				allMultipleInfo += selectedSku + ',' + selectedIds + ';';
+    			}
+    		}
+    	});
+    	
+    		$j('#testHidden').html(allSeletedIds);	
+    		$j('#multipleHidden').html(allMultipleInfo);	
+    		var orderlineId = request('id');    	
+    		
+    		
+    		var totalNum = parseInt($j('#TotalHidden').html());
+	    	var moreNum = parseInt($j('#MoreHidden').html());
+	      		
+			moreNum = moreNum + 10;
+			$j('#MoreHidden').html(moreNum);
+		
+		
+    		rerenderMulStoresPanel(allSeletedSku,moreNum,orderlineId,count,allMultipleInfo);
+	}
+	
+	function MulFewer()
+	{	
+		var allSeletedIds = '';
+    	var allSeletedSku = '';
+    	var allMultipleInfo = '';
+    	var allDataRows = $j('#DispathPointListDiv .list .dataRow');
+		var count = 0;		
+    	$j.each(allDataRows, function(index, item){
+    		if($j(item).find('input').prop('checked')){		
+    			count += 1;    			
+    			var selectedIds = $j(item).find('.id').text();
+    			var selectedSku = $j(item).find('.clsSKU').text();		
+    			if(allSeletedIds.indexOf(selectedIds) < 0){
+    				allSeletedIds += selectedIds + ';';
+    				allSeletedSku += selectedSku + ';';
+    				allMultipleInfo += selectedSku + ',' + selectedIds + ';';
+    			}
+    		}
+    	});    	
+    		$j('#testHidden').html(allSeletedIds);	
+    		$j('#multipleHidden').html(allMultipleInfo);	
+    		var orderlineId = request('id');    	  		   		
+    		var totalNum = parseInt($j('#TotalHidden').html());
+    		var moreNum = parseInt($j('#MoreHidden').html());     		
+			moreNum = moreNum - 10;
+			$j('#MoreHidden').html(moreNum);		
+    		rerenderMulStoresPanel(allSeletedSku,moreNum,orderlineId,count,allMultipleInfo);
+	}
+    function CheckStockComplete(){
+    }   
+    function CheckDispatchComplete(){
+    }
+    function CallShowMoreComplete()
+    {   
+       	var totalNum = parseInt($j('#TotalHidden').html());
+    	var moreNum = parseInt($j('#MoreHidden').html());
+    	var checkFewer = moreNum - 10;
+    	if(moreNum > totalNum)
+    	{
+    		$j('#idMore').css('display','none');
+    		$j('#idSingnal').css('display','none');
+    		$j('.moreArrow').css('display','none');
+    	}   	
+    		
+    	if(checkFewer == 0)
+    	{
+    		$j('#idFewer').css('display','none');
+    		$j('#idSingnal').css('display','none');
+    		$j('.fewerArrow').css('display','none');
+    		
+    	}   	
+    }
+	function CallShowMulMoreComplete()
+	{
+		var result = $j('#jsTest').html();
+		result = $j('<div />').html(result).text();
+		$j('#resultR').html(result);
+		
+		 $j('#idMulFewer').css('display','block');
+    	$j('#idMulSingnal').css('display','block');
+    	$j('.fewerArrow').css('display','block');
+		
+		var totalNum = parseInt($j('#TotalHidden').html());
+    	var moreNum = parseInt($j('#MoreHidden').html());
+    	var checkFewer = moreNum - 10;
+    	if(moreNum > totalNum)
+    	{
+    		$j('#idMulMore').css('display','none');
+    		$j('#idMulSingnal').css('display','none');
+    		$j('.moreArrow').css('display','none');
+    	}   	
+    		
+    	if(checkFewer == 0)
+    	{
+    		$j('#idMulFewer').css('display','none');
+    		$j('#idMulSingnal').css('display','none');
+    		$j('.fewerArrow').css('display','none');
+    		
+    	}   	
+    	
+	}
+    function CallShowMoreAction(){
+    	var allSeletedIds = '';
+    	var allSeletedSku = '';
+    	var allMultipleInfo = '';
+    	var allDataRows = $j('#DispathPointListDiv .list .dataRow');
+		
+    	$j.each(allDataRows, function(index, item){
+    		if($j(item).find('input').prop('checked')){					
+    			var selectedIds = $j(item).find('.id').text();
+    			var selectedSku = $j(item).find('.clsSKU').text();		
+    			if(allSeletedIds.indexOf(selectedIds) < 0){
+    				allSeletedIds += selectedIds + ';';
+    				allSeletedSku += selectedSku + ';';
+    				allMultipleInfo += selectedSku + ',' + selectedIds + ';';
+    			}
+    		}
+    	});
+    	
+    	var page = '';
+    	var totalNum = parseInt($j('#TotalHidden').html());
+    	var moreNum = parseInt($j('#MoreHidden').html());
+      		
+		moreNum = moreNum + 10;
+		$j('#MoreHidden').html(moreNum);
+		
+	    rerenderStoresPanelShowMore(allSeletedIds,allSeletedSku,moreNum); 
+    }
+    
+    function CallShowFewerAction(){
+    	var allSeletedIds = '';
+    	var allSeletedSku = '';
+    	var allMultipleInfo = '';
+    	var allDataRows = $j('#DispathPointListDiv .list .dataRow');
+		
+    	$j.each(allDataRows, function(index, item){
+    		if($j(item).find('input').prop('checked')){					
+    			var selectedIds = $j(item).find('.id').text();
+    			var selectedSku = $j(item).find('.clsSKU').text();		
+    			if(allSeletedIds.indexOf(selectedIds) < 0){
+    				allSeletedIds += selectedIds + ';';
+    				allSeletedSku += selectedSku + ';';
+    				allMultipleInfo += selectedSku + ',' + selectedIds + ';';
+    			}
+    		}
+    	});
+    	
+    	var page = '';
+    	var totalNum = parseInt($j('#TotalHidden').html());
+    	var moreNum = parseInt($j('#MoreHidden').html());
+      		
+		moreNum = moreNum - 10;
+		$j('#MoreHidden').html(moreNum);
+		
+	    rerenderStoresPanelShowMore(allSeletedIds,allSeletedSku,moreNum); 
+    }
+
+    function CallCheckStockAction(){     
+    		
+    	$j('#idFewer').css('display','none');
+    	$j('#idSingnal').css('display','none');
+    	$j('#idMulFewer').css('display','none');
+    	$j('#idMulSingnal').css('display','none');
+    	$j('.fewerArrow').css('display','none');
+    	
+    	var allSeletedIds = '';
+    	var allSeletedSku = '';
+    	var allMultipleInfo = '';
+    	var allDataRows = $j('#DispathPointListDiv .list .dataRow');
+		var count = 0;
+		
+    	$j.each(allDataRows, function(index, item){
+    		if($j(item).find('input').prop('checked')){		
+    			count += 1;    			
+    			var selectedIds = $j(item).find('.id').text();
+    			var selectedSku = $j(item).find('.clsSKU').text();		
+    			if(allSeletedIds.indexOf(selectedIds) < 0){
+    				allSeletedIds += selectedIds + ';';
+    				allSeletedSku += selectedSku + ';';
+    				allMultipleInfo += selectedSku + ',' + selectedIds + ';';
+    			}
+    		}
+    	});
+    	if(count == 0){
+    		alert('Please select at least one order line item!');
+    		return false;
+    	}
+    	else if(count == 1)
+    	{   
+    		$j('#testHidden').html(allSeletedIds);
+	    	rerenderStoresPanel(allSeletedIds,allSeletedSku);	 
+	    	$j('#twoItemId').css('display','none');
+    	}
+    	else
+    	{
+    		$j('#oneItemId').css('display','none');	
+    		$j('#testHidden').html(allSeletedIds);	
+    		$j('#multipleHidden').html(allMultipleInfo);	
+    		var orderlineId = request('id');    	
+	    	SelectDispatchPointController.MultipleShow(allSeletedSku,'',orderlineId,count,allMultipleInfo,function(result, event) {
+		        result = $j('<div />').html(result).text();
+		        $j('#resultR').html(result);
+		        $j('#twoItemId').css('display','block');	
+       		});     
+       		
+    	}    
+    }
+    
+   function CheckStockName(){
+    	var allSeletedName = '';
+    	var storeId = '';
+    	var allDataRows = $j('#oneItemId .list .dataRow');     		
+		var radioCk = $j(":radio:checked").length
+    	if(radioCk == 0)
+    	{
+    		alert('Please select at least one dispatch point!');
+    	}
+    	else
+    	{
+	    	$j.each(allDataRows, function(index, item){	
+	    		if($j(item).find(':radio:checked').length > 0){
+	    			allSeletedName = $j(item).find('.clsstockName').text();
+	    			storeId = $j(item).find('.clsStoreId').text();
+					nUpt(storeId,$j('#testHidden').text());
+	    		}
+	    	});
+    	}
+    }
+    
+    function CheckMultipleStock()
+    {
+    	var allDataRows = $j('#DispathPointListDiv .list .dataRow');
+		var count = 0;		
+
+    	if(request('sdNum')!=null)
+    	{
+    		count = request('sdNum');
+    	}
+    	else
+    	{
+    		$j.each(allDataRows, function(index, item){
+	    		if($j(item).find('input').prop('checked')){		
+	    			count += 1;    			
+	    		}
+    		});
+    	}
+
+		var c = 0;
+		for(var i = 0; i < count; i++)
+		{
+			var cRadio = $j('input[name="radioN' + i + '"]:checked').length;
+			if(cRadio == 0)
+			{
+				c = c + 1;
+			}
+		}
+		if(c != 0)
+		{
+			alert('Please select ' + count + ' items!');
+		}	
+		else
+		{
+			var allDataRows = $j('#resultR .list .dataRow');   
+			var arrStockName = '';
+			var arrStockCode = '';
+			var arrStockInfo = '';
+			
+			var splitDispatch = '';
+			$j.each(allDataRows, function(index, item){	
+	    		if($j(item).find(':radio:checked').length > 0){	
+	    			if(request('mInfo') != null)
+	    			{
+	    				splitDispatch = request('mInfo').split(";");;
+	    			}
+	    			else
+	    			{
+	    				splitDispatch = $j('#multipleHidden').html().split(";");
+	    			}    			
+	    			   	
+	    			for (i=0;i<splitDispatch.length ;i++ )   
+				    {   
+				    
+				    	var subSku = splitDispatch[i].substring(0 , splitDispatch[i].lastIndexOf(','));
+				    	
+				    	if(subSku == $j(item).find('.mulClsSCode').text())
+				    	{
+				    		var subId =  splitDispatch[i].substring(splitDispatch[i].lastIndexOf(',') + 1);
+				    		arrStockInfo += subId + ',' + $j(item).find('.mulClsSId').text() + ';';
+				    		
+				    	}
+				    }   	    			
+	    		}
+	    	});
+	    	mUpt(arrStockInfo);  
+		}	
+    }
+    
+    function CancelOneItems()
+    {
+    	location.href("SelectDispatchPoint?id=" + request('id'));
+    }
+    function CancelTwoItems()
+    {
+    	location.href("SelectDispatchPoint?id=" + request('id'));
+    }
+    
+ 
+    function request(strParame) {
+	    var args = new Object();
+	    var query = location.search.substring(1);
+	    var pairs = query.split("&");
+	    for (var i = 0; i < pairs.length; i++) {
+	        var pos = pairs[i].indexOf('=');
+	        if (pos == -1) continue;
+	        var argname = pairs[i].substring(0, pos);
+	        var value = pairs[i].substring(pos + 1);
+	        value = decodeURIComponent(value);
+	        args[argname] = value;
+	    }
+	    return args[strParame];
+	}
+	
+	function MulResultOrderRowClick(obj){
+		
+		$j("#resultR input:checkbox").not(obj).prop("checked", false);
+		var self_wrap = $j(obj).parent().parent(".headerRow");
+		while(self_wrap.next().hasClass("dataRow")){
+            self_wrap.next().children(".hasCheckbox").children("input:radio").prop("checked", obj.checked);
+            self_wrap = self_wrap.next();
+        };
+        
+	}
+	
+	function MulResultOrderLineItemRowClick(obj){
+        var checkbox = $j("#resultR input:checkbox")
+        checkbox.each(function () {
+            var flag = true;
+            var self = $j(this);
+            var self_wrap = self.parent().parent(".headerRow");
+            while(self_wrap.next().hasClass("dataRow")){
+                if (!self_wrap.next().children(".hasCheckbox").children("input:radio").prop("checked")) {
+                    flag = false;
+                    break;
+                };
+                self_wrap = self_wrap.next();
+            };
+            if (flag == true) {
+                self.prop("checked", true);
+            }
+            else {
+                self.prop("checked", false);
+            }
+        });
+        
+	}
+	
+	 
+</script>
+
+</apex:page>

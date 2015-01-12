@@ -1,0 +1,48 @@
+<apex:page standardController="Order__c" extensions="OrderCreditLimitController">
+<apex:includeScript value="{!URLFOR($Resource.jquery, '')}"  />
+<apex:stylesheet value="{!URLFOR($Resource.stylesheets, '/stylesheets/main.css')}"  />
+
+<!-- Begin Default Content REMOVE THIS -->
+<apex:form id="theform">
+
+	<apex:outputPanel id="CreditLimitPanel" rendered="{!CreditType}">
+		<table id="CreditLimitTable" cellspacing="0" cellpadding="0" border="0" class="CreditLimitTable" style="width:100%;">
+			<tr>	
+				<td class='title'>Customer ID</td>
+				<td class='value'>{!creLimitInfo.CustomerId}</td>
+			</tr>
+			<tr>
+				<td class='title'>Credit Limit</td>
+				<td class='value'>
+					<apex:outputText value="{0, number, currency}">
+					  <apex:param value="{!creLimitInfo.CreditLimit}"/>
+					</apex:outputText>
+				</td>
+			</tr>
+			<tr>
+				<td class='title'>Available Credit</td>
+				<td class='value'>
+					<apex:outputText value="{0, number, currency}">
+					  <apex:param value="{!creLimitInfo.AvailableCredit}"/>
+					</apex:outputText>
+				</td>
+			</tr>
+			<tr>
+				<td class='title'>Balance</td>
+				<td class='value'>
+					<apex:outputText value="{0, number, currency}">
+					  <apex:param value="{!creLimitInfo.Balance}"/>
+					</apex:outputText>
+				</td>
+			</tr>
+		</table>
+	</apex:outputPanel>
+
+</apex:form>
+<!-- End Default Content REMOVE THIS -->
+
+
+<script type="text/javascript">
+	
+</script>
+</apex:page>

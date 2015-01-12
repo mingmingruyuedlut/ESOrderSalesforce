@@ -1,0 +1,39 @@
+# Created by Dataloader Cliq
+#
+# Create your field mapping list in the following format
+# <Your CSV Field1>=<Salesforce Field in Order__c>
+# NOTE: Salesforce Fields are case-sensitive. 
+
+# Example: 
+ID=Id
+ORDER_NUMBER__C=Order_Number__c
+ITV_ORDER_NUMBER__C=ITV_Order_Number__c
+ACCOUNTNUMBER__C=AccountNumber__c
+CREATE_DATE__C=Create_Date__c
+TOTAL_PRICE_INC__C=Total_Price_Inc__c
+REFERENCE_NUMBER_1__C=Reference_Number_1__c
+REFERENCE_NUMBER_2__C=Reference_Number_2__c
+DELIVERY_NOTES__C=Delivery_Notes__c
+PAYMENTMETHOD__C=PaymentMethod__c
+STATUS__C=Status__c
+CLOSE_DATE__C=Close_Date__c
+FIRST_NAME__C=First_Name__c
+LAST_NAME__C=Last_Name__c
+PHONE__C=Phone__c
+MOBILE__C=Mobile__c
+EMAIL__C=Email__c
+ADDRESS_1__C=Address_1__c
+ADDRESS_2__C=Address_2__c
+ADDRESS_3__C=Address_3__c
+SUBURB__C=Suburb__c
+POSTCODE__C=Postcode__c
+STATE__C=State__c
+COUNTRY__C=Country__c
+BYPASS_VR__C=ByPass_VR__c
+SENT_DATE__C=Sent_Date__c
+
+
+
+
+
+

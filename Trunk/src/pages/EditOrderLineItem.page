@@ -1,0 +1,214 @@
+<apex:page standardController="OrderLineItem__c" extensions="EditOrderLineItemController" action="{!PageLoad}">
+
+<apex:outputPanel rendered="{!ShowMessage}">
+	<p>The order has already been finalised, you can't edit it.</p>
+	<p>Click <a href="/{!OrderId}">here</a> to go back to the order.</p>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!ShowOrderLineItem}">
+
+<apex:form id="EditOrderLineItemForm">
+<apex:includeScript value="{!URLFOR($Resource.jquery, '')}"  />
+<apex:stylesheet value="{!URLFOR($Resource.stylesheets, '/stylesheets/main.css')}"  />
+<script type="text/javascript">
+    $j = jQuery.noConflict();
+    $j(function () {
+        function IsNum(text) {
+            if (!isNaN(text)) { return true; } 
+            else { return false; }
+        }
+        
+	    function MathRound(val,digits){  
+			return Math.round(val * Math.pow(10, digits)) / Math.pow(10, digits); 
+		}
+
+        $j(".salesPrice,.quantity").blur(function () {
+        	var objSalesPrice = $j('.salesPrice');
+        	var objQuantity = $j('.quantity');    	
+        	
+            var salesPrice = objSalesPrice.val().trim();
+            var quantity = objQuantity.val().trim();            
+			
+			var isSalesPriceValid = Check(objSalesPrice);
+			var isQuantityValid = Check(objQuantity);
+            if (isSalesPriceValid && isQuantityValid) {
+            	var objGP1 = $j('.gp1');
+            	var objGP2 = $j('.gp2');
+            	var objSalesPriceEx = $j('.salesPriceEx');
+            	var objTotalPriceInc = $j('.totalPriceInc');
+            	var objTotalPriceEx = $j('.totalPriceEx');
+            	var objCostInc = $j('.costInc');
+            	var costInc = objCostInc.text().trim().replace('$', '');
+            	if(salesPrice != '' && quantity != ''){
+	                objGP1.text('$' + MathRound((salesPrice - costInc) * quantity, 2));
+	                objGP2.text(MathRound(((salesPrice - costInc) / costInc) * 100, 2) + '%');
+	                objTotalPriceInc.text('$' + MathRound(salesPrice * quantity, 2));
+	                objTotalPriceEx.text('$' + MathRound((salesPrice * quantity)/1.1, 2));
+	                objSalesPriceEx.text('$' + MathRound(salesPrice/1.1, 2));
+                }else{
+	                objGP1.text('');
+	                objGP2.text('');
+	                objTotalPriceInc.text('');
+	                objTotalPriceEx.text('');
+	                objSalesPriceEx.text('');
+                }
+            }
+        })
+        
+        function Check(obj){
+        	var val = $j(obj).val().trim();
+        	if(val != null && val != '' && !IsNum(val)){
+        		return false;
+        	}else{
+        		return true;
+        	}
+        }
+    })
+</script>
+<style>
+.lineItemInput{width:280px!important;font-size:95%;}
+</style>
+<!-- Begin Default Content REMOVE THIS -->
+
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img title="Order" class="pageTitleIcon" alt="Order" src="/s.gif" />
+            <h1 class="pageType">Order Line Item Edit</h1>
+            <h2 class="pageDescription">{!OrderLineItem.LineItemName}</h2>
+        </div>
+    </div>
+</div>
+<div class="bPageBlock brandSecondaryBrd bDetailBlock secondaryPalette">
+    <div class="editLineItemPanel">
+        <div class="pbHeader">
+            <table cellspacing="0" cellpadding="0" border="0">
+                <tbody>
+                    <tr>
+                        <td class="pbTitle">
+                            <h2 class="mainTitle">Order Line Item Edit</h2>
+                        </td>
+                        <td class="pbButton">
+                            <apex:commandButton action="{!Save}" value="Save" title="Save" styleClass="btn"/>
+                            <apex:commandButton action="{!Cancel}" value="Cancel" title="Cancel" styleClass="btn"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pbBody">
+            <div class="pbSubsection">
+                <table class="detailList" cellspacing="0" cellpadding="0" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="labelCol"><label>Order</label></td>
+                            <td class="dataCol col02">
+                            	<a href="/{!OrderLineItem.OrderId}">{!OrderLineItem.OrderName}</a>
+                            </td>
+                            <td class="labelCol">&nbsp;</td>
+                            <td class="dataCol"><label>&nbsp;</label></td>
+                        </tr>
+                        <tr>
+                            <td class="labelCol"><label>Product</label></td>
+                            <td class="dataCol col02">
+                            	<a href="/{!OrderLineItem.ProductId}">{!OrderLineItem.ProductName}</a>
+                            </td>
+                            <td class="labelCol">Sales Price Ex.</td>
+                            <td class="dataCol"><label class="salesPriceEx">{!OrderLineItem.SalesPriceEx}</label></td>
+                        </tr>
+                        <tr>
+                            <td class="labelCol"><label>Model</label></td>
+                            <td class="dataCol col02">{!OrderLineItem.Model}</td>
+                            <td class="labelCol"><label>Sales Price Inc.</label></td>
+                            <td class="dataCol">
+	                            <apex:inputText value="{!OrderLineItem.SalesPriceInc}" styleClass="salesPrice" size="20"/>
+	                            <apex:outputPanel rendered="{!OrderLineItem.InValidSalesPrice == 1}" styleClass="salesPriceTooltip error">You must enter a value</apex:outputPanel>
+                				<apex:outputPanel rendered="{!OrderLineItem.InValidSalesPrice == 2}" styleClass="salesPriceTooltip error">Invalid number</apex:outputPanel>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="labelCol"><label>SKU</label></td>
+                            <td class="dataCol col02"><label>{!OrderLineItem.SKU}</label></td>
+                            <td class="labelCol"><label>Quantity</label></td>
+                            <td class="dataCol">
+                            	<apex:inputText value="{!OrderLineItem.Quantity}" styleClass="quantity" size="20"/>
+                            	<apex:outputPanel rendered="{!OrderLineItem.InValidQuantity == 1}" styleClass="salesPriceTooltip error">You must enter a value</apex:outputPanel>
+                				<apex:outputPanel rendered="{!OrderLineItem.InValidQuantity == 2}" styleClass="salesPriceTooltip error">Invalid number</apex:outputPanel>
+                           	</td>
+                        </tr>
+                        <tr>
+                            <td class="labelCol"><label>Product Group</label></td>
+                            <td class="dataCol col02"><label>{!OrderLineItem.ProductGroup}</label></td>
+                            <td class="labelCol"><label>Total Price Ex.</label></td>
+                            <td class="dataCol"><label class="totalPriceEx">{!OrderLineItem.TotalPriceEx}</label></td>
+                        </tr>
+                        <tr>
+                            <td class="labelCol"><label>Cost Ex.</label></td>
+                            <td class="dataCol col02"><label>{!OrderLineItem.CostEx}</label></td>
+                            <td class="labelCol"><label>Total Price Inc.</label></td>
+                            <td class="dataCol"><label class="totalPriceInc">{!OrderLineItem.TotalPriceInc}</label></td>
+                        </tr>                        
+                        <tr>
+                            <td class="labelCol"><label>Cost Inc.</label></td>
+                            <td class="dataCol col02"><label class="costInc">{!OrderLineItem.CostInc}</label></td>
+                            <td class="labelCol"><label>GP $</label></td>
+                            <td class="dataCol"><label class="gp1">{!OrderLineItem.GPDollor}</label></td>
+                        </tr>
+                        <tr>
+                            <td class="labelCol"><label>Ticket Price</label></td>
+                            <td class="dataCol col02"><label>{!OrderLineItem.TicketPrice}</label></td>
+                            <td class="labelCol"><label>GP %</label></td>
+                            <td class="dataCol"><label class="gp2">{!OrderLineItem.GPPercent}</label></td>
+                        </tr>
+                        <tr>
+                            <td class="labelCol"><label>&nbsp;</label></td>
+                            <td class="dataCol col02">&nbsp;</td>
+                            <td class="labelCol">&nbsp;</td>
+                            <td class="dataCol">&nbsp;</td>
+                        </tr> 
+                        <tr>
+                            <td class="labelCol"><label>Freight Method</label></td>
+                            <td class="dataCol col02">
+                                <apex:selectList id="SelectFreightMethod" value="{!OrderLineItem.FreightMethod}" size="1">
+									<apex:selectOptions value="{!FreightMethodList}"/>
+								</apex:selectList>
+                            </td>
+                            <td class="labelCol"><label>Status</label></td>
+                            <td class="dataCol">{!OrderLineItem.Status}</td>
+                        </tr>
+                        <tr>
+                            <td class="labelCol"><label>Dispatch Point</label></td>
+                            <td class="dataCol col02">
+                            	<apex:selectList id="SelectDispatchPoint" value="{!OrderLineItem.DispatchPoint}" size="1">
+									<apex:selectOptions value="{!DispatchPointList}"/>
+								</apex:selectList>
+                            </td>
+                            <td class="labelCol"><label>&nbsp;</label></td>
+                            <td class="dataCol">&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>  
+        <div class="pbBottomButtons">
+            <table cellspacing="0" cellpadding="0" border="0">
+                <tbody>
+                    <tr>
+                        <td class="pbTitle"></td>
+                        <td>
+                            <apex:commandButton action="{!Save}" value="Save" title="Save" styleClass="btn"/>
+                            <apex:commandButton action="{!Cancel}" value="Cancel" title="Cancel" styleClass="btn"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</apex:form>
+<!-- End Default Content REMOVE THIS -->
+
+</apex:outputPanel>
+
+</apex:page>

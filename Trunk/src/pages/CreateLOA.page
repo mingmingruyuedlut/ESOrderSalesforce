@@ -1,0 +1,6 @@
+<apex:page action="{!Create}" controller="CreateLOAController">
+	<apex:outputPanel rendered="{!ShowErrorMsg}">
+		<p>{!ErrorMsg}</p>
+		<p>Click <a href="/{!OrderId}">here</a> to go back to the order.</p>
+	</apex:outputPanel>
+</apex:page>

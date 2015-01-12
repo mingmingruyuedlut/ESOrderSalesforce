@@ -1,0 +1,43 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"[]>
+<beans>
+  <bean id="Upsert_Order" class="com.salesforce.dataloader.process.ProcessRunner" singleton="false">
+    <description>Created by Dataloader Cliq.</description>
+    <property name="name" value="Upsert_Order" />
+    <property name="configOverrideMap">
+      <map>
+        <entry key="dataAccess.name" value="C:\Program Files (x86)\salesforce.com\Data Loader\cliq_process\Upsert_Order\read\Upsert_Order_1.csv" />
+        <entry key="dataAccess.readUTF8" value="true" />
+        <entry key="dataAccess.type" value="csvRead" />
+        <entry key="dataAccess.writeUTF8" value="true" />
+        <entry key="process.enableExtractStatusOutput" value="true" />
+        <entry key="process.enableLastRunOutput" value="true" />
+        <entry key="process.lastRunOutputDirectory" value="C:\Program Files (x86)\salesforce.com\Data Loader\cliq_process\Upsert_Order\log" />
+        <entry key="process.mappingFile" value="C:\Program Files (x86)\salesforce.com\Data Loader\cliq_process\Upsert_Order\config\Upsert_Order.sdl" />
+        <entry key="process.operation" value="upsert" />
+        <entry key="process.statusOutputDirectory" value="C:\Program Files (x86)\salesforce.com\Data Loader\cliq_process\Upsert_Order\log" />
+        <entry key="sfdc.bulkApiCheckStatusInterval" value="5000" />
+        <entry key="sfdc.bulkApiSerialMode" value="5000" />
+        <entry key="sfdc.debugMessages" value="false" />
+        <entry key="sfdc.enableRetries" value="true" />
+        <entry key="sfdc.endpoint" value="https://test.salesforce.com/services/Soap/u/28.0" />
+        <entry key="sfdc.entity" value="Order__c" />
+        <entry key="sfdc.extractionRequestSize" value="500" />
+        <entry key="sfdc.externalIdField" value="Order_Number__c" />
+        <entry key="sfdc.insertNulls" value="false" />
+        <entry key="sfdc.loadBatchSize" value="100" />
+        <entry key="sfdc.maxRetries" value="3" />
+        <entry key="sfdc.minRetrySleepSecs" value="2" />
+        <entry key="sfdc.noCompression" value="false" />
+        <entry key="sfdc.password" value="2422bee587a4951e602c4d7e23a8005027de6c5b192612a67b94b615810863319937198746c13670" />
+        <entry key="sfdc.proxyHost" value="" />
+        <entry key="sfdc.proxyNtlmDomain" value="" />
+        <entry key="sfdc.proxyPassword" value="f80a8187cf4eec85" />
+        <entry key="sfdc.proxyPort" value="" />
+        <entry key="sfdc.proxyUsername" value="" />
+        <entry key="sfdc.timeoutSecs" value="60" />
+        <entry key="sfdc.useBulkApi" value="false" />
+        <entry key="sfdc.username" value="eric.sun.jb@fabricgroup.com.au.full" />
+      </map>
+    </property>
+  </bean>
+</beans>

@@ -1,0 +1,8 @@
+====Export products==== 
+1): change the node 'sfdc.extractionSOQL' value of process-confi.xml(Export_Product/config) based on the SKU. ['SKU1', 'SKU2', 'SKU3'....]
+2): run the Export_Product.bat to export the product data.
+
+=====Delete products====
+3): copy the Export_Product.csv file(Export_Product/write) to Delete_Product/read folder.
+4): rename it to 'Delete_Product.csv' in Delete_Product/read folder.
+5): run the Delete_Product.bat to delete the product data. 

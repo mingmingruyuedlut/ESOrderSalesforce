@@ -1,0 +1,106 @@
+﻿/* printing css */
+@page {
+    size: 21cm 29.7cm; /* width height */
+}
+
+@page {
+    @top-center {
+        content: element(header);
+    }
+
+    @bottom-center {
+        content: element(footer);
+    }
+}
+
+div.header {
+    position: running(header);
+}
+
+div.footer {
+    text-align: center;
+    font-family: Arial;
+    font-size: 11px;
+    position: running(footer);
+}
+
+.pagenumber:before {
+    content: counter(page);
+}
+
+.pagecount:before {
+    content: counter(pages);
+}
+/* e.g.:
+<div class="footer">
+  <div>Page <span class="pagenumber" />of <span class="pagecount" /></div>
+</div>
+*/
+
+/* content css */
+div.content {
+    width: 700px;
+    font-family: Verdana;
+    font-size: 13px;
+}
+
+.f_left {
+    float: left;
+}
+
+.f_right {
+    float: right;
+}
+
+.a_right {
+    text-align: right;
+}
+
+.a_center {
+    text-align: center;
+}
+
+.m_top10 {
+    margin-top: 10px;
+}
+
+.underline {
+    text-decoration: underline;
+}
+
+div.box {
+    border: 1px solid black;
+    margin-top: 5px;
+    padding: 10px;
+}
+
+table {
+    width: 100%;
+}
+
+ul {
+    margin-left: 30px;
+    margin-top: 5px;
+}
+
+th {
+    border-width: 1px 0 1px 1px;
+    border-color: black;
+    border-style: solid;
+    padding: 3px;
+}
+
+td {
+    border-width: 0 0 1px 1px;
+    border-color: black;
+    border-style: solid;
+    padding: 3px;
+}
+
+.col_last {
+    border-right-width: 1px;
+}
+
+.clear {
+    clear: both;
+}

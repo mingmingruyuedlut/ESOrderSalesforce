@@ -1,0 +1,6 @@
+<apex:page standardController="Order__c" extensions="DeleteOrderController" action="{!DeleteOrder}">
+	<apex:outputPanel >
+		<p>The order has already been finalised, you cannot delete it.</p>
+		<p>Click <a href="{!FailRetURL}">here</a> to go back.</p>
+	</apex:outputPanel>
+</apex:page>

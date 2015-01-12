@@ -1,0 +1,147 @@
+<apex:page action="{!Init}" controller="SendEmailController">
+<apex:includeScript value="{!URLFOR($Resource.jquery, '')}" />
+  <script type="text/javascript">
+  function pickupValue(to, cc, bcc){
+    var txt = $("textarea[name$=':to']");
+    txt.val(mergeMail(txt.val(), to));
+    var txt = $("textarea[name$=':cc']");
+    txt.val(mergeMail(txt.val(), cc));
+    var txt = $("textarea[name$=':bcc']");
+    txt.val(mergeMail(txt.val(), bcc));
+  }
+  function mergeMail(list1, list2){
+    list1 = list1.replace(/\s/, '', 'ig');
+    list2 = list2.replace(/\s/, '', 'ig');
+    var array1 = list1 == '' ? [] : list1.split(';');
+    var array2 = list2 == '' ? [] : list2.split(';');
+    for(var i=0; i<array1.length; i++){
+      if(array1[i] != '' && $.inArray(array1[i], array2) == -1)
+        array2.push(array1[i]);
+    }
+    return array2.join(';');
+  }
+  </script>
+<apex:outputPanel rendered="{!PrerequisiteValidationFailed}">
+  <p>{!PrerequisiteValidationMsg}</p>
+  <p>Click <a href="/{!Id}">here</a> to go back.</p>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!!PrerequisiteValidationFailed}">
+  <div class="bPageTitle">
+    <div class="ptBody">
+      <div class="content">
+        <img title="Order" class="pageTitleIcon" alt="Order" src="/s.gif" />
+        <h1 class="pageType">Task</h1>
+        <h2 class="pageDescription">Send an Email</h2>
+      </div>
+    </div>
+  </div>
+  <apex:form >
+    <div class="bPageBlock brandSecondaryBrd bEditBlock secondaryPalette">
+      <div class="pbHeader">
+        <table cellspacing="0" cellpadding="0" border="0">
+          <tbody>
+            <tr>
+              <td class="pbTitle"></td>
+              <td id="topButtonRow" class="pbButton">
+              	<apex:commandButton action="{!Send}" value="Send" title="Send" styleClass="btn"/>
+              	<apex:commandButton action="{!Cancel}" value="Cancel" title="Cancel" styleClass="btn"/>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pbBody">
+        <div class="pbSubsection">
+          <table cellspacing="0" cellpadding="0" border="0" class="detailList">
+            <tbody>
+              <tr>
+                <td class="labelCol">Email Format</td>
+                <td class="data2Col">
+                	<apex:outputPanel rendered="{!TextFormat}">
+                		<b>Text-Only</b>
+                		[<apex:commandLink action="{!SwitchHTML}" value="Switch to HTML"/> ]
+                	</apex:outputPanel>
+                	<apex:outputPanel rendered="{!!TextFormat}">
+                		<b>HTML</b>
+                		[<apex:commandLink action="{!SwitchText}" value="Switch to Text-Only"/> ]
+                	</apex:outputPanel>
+                </td>
+              </tr>
+              <tr>
+                <td class="labelCol"><label>To</label></td>
+                <td class="data2Col">
+                  <apex:inputTextarea id="to" value="{!EmailTo}" rows="2" cols="65"/>
+                  <a title="To Lookup (New Window)" href="javascript: openPopup('/_ui/core/email/author/EmailCCBccLookup?', 'CCBCCLookup', 420, 490, 'width=420,height=490,toolbar=no,status=no,directories=no,menubar=no,resizable=yes,scrollable=no', true);">
+                  	<img title="To Lookup (New Window)" onmouseover="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon'" onfocus="this.className = 'lookupIconOn';" onblur="this.className = 'lookupIcon';" class="lookupIcon" alt="To Lookup (New Window)" src="/s.gif"/>
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td class="labelCol"><label>CC</label></td>
+                <td class="data2Col">
+                  <apex:inputTextarea id="cc" value="{!EmailCC}" rows="2" cols="65"/>
+                  <a title="CC Lookup (New Window)" href="javascript: openPopup('/_ui/core/email/author/EmailCCBccLookup?', 'CCBCCLookup', 420, 490, 'width=420,height=490,toolbar=no,status=no,directories=no,menubar=no,resizable=yes,scrollable=no', true);">
+                  	<img title="CC Lookup (New Window)" onmouseover="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon'" onfocus="this.className = 'lookupIconOn';" onblur="this.className = 'lookupIcon';" class="lookupIcon" alt="To Lookup (New Window)" src="/s.gif"/>
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td class="labelCol"><label>BCC</label></td>
+                <td class="data2Col">
+                  <apex:inputTextarea id="bcc" value="{!EmailBCC}" rows="2" cols="65"/>
+                  <a title="BCC Lookup (New Window)" href="javascript: openPopup('/_ui/core/email/author/EmailCCBccLookup?', 'CCBCCLookup', 420, 490, 'width=420,height=490,toolbar=no,status=no,directories=no,menubar=no,resizable=yes,scrollable=no', true);">
+                  	<img title="BCC Lookup (New Window)" onmouseover="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon'" onfocus="this.className = 'lookupIconOn';" onblur="this.className = 'lookupIcon';" class="lookupIcon" alt="To Lookup (New Window)" src="/s.gif"/>
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td class="labelCol"><label>Subject</label></td>
+                <td class="data2Col">
+                  <apex:inputText value="{!EmailSubject}" size="70" />
+                </td>
+              </tr>
+              <tr>
+                <td class="labelCol"><label>Body</label></td>
+                <td class="data2Col">
+                  <apex:inputTextarea value="{!EmailBody}" rows="15" cols="93" richText="{!!TextFormat}"/>
+                </td>
+              </tr>
+            <apex:outputPanel rendered="{!DefaultAttach}">
+              <tr>
+              	<td class="labelCol"><label>{!DefaultAttachTitle}</label></td>
+              	<td class="data2Col">
+              		<apex:repeat value="{!DefaultAttachmentInfos}" var="attach">
+	              	  <a title="{!attach.Name}" target="_blank" href="{!attach.Url}">{!attach.Name}</a>&nbsp;&nbsp;
+              		</apex:repeat>
+              	</td>
+              </tr>
+            </apex:outputPanel>
+              <tr>
+                <td class="labelCol"><label>Additional Attachments</label></td>
+                <td class="data2Col">
+                  <apex:inputFile value="{!MoreAttachBody1}" filename="{!MoreAttachName1}"></apex:inputFile>
+                  <apex:inputFile value="{!MoreAttachBody2}" filename="{!MoreAttachName2}"></apex:inputFile>
+                  <apex:inputFile value="{!MoreAttachBody3}" filename="{!MoreAttachName3}"></apex:inputFile>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pbBottomButtons">
+        <table cellspacing="0" cellpadding="0" border="0">
+          <tbody>
+            <tr>
+              <td class="pbTitle"></td>
+              <td id="bottomButtonRow" class="pbButtonb">
+                <apex:commandButton action="{!Send}" value="Send" title="Send" styleClass="btn"/>
+              	<apex:commandButton action="{!Cancel}" value="Cancel" title="Cancel" styleClass="btn"/>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </apex:form>
+</apex:outputPanel>
+</apex:page>

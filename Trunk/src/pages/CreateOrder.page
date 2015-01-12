@@ -1,0 +1,2 @@
+<apex:page action="{!Create}" controller="CreateOrderController">
+</apex:page>

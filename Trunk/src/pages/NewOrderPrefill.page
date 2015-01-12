@@ -1,0 +1,5 @@
+<apex:page standardController="Order__c" extensions="NewOrderPrefillController" action="{!NewOrderPrefill}">
+	<apex:outputPanel >
+		<p>This is New Order Prefill Page.</p>
+	</apex:outputPanel>
+</apex:page>

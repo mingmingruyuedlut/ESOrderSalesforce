@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>CreditLimitController</members>
+        <members>DashboardReportController</members>
+        <members>OrderCreditLimitController</members>
+        <members>SFEricSunTestRestService</members>
+        <members>SFOrderWebService</members>
+        <members>SFOrderWebServiceTest</members>
+        <members>SelectDispatchPointController</members>
+        <members>SelectDispatchPointControllerTest</members>
+        <members>SyncStoreController</members>
+        <members>SyncStoreControllerTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>SelectDispatchPoint</members>
+        <name>ApexPage</name>
+    </types>
+    <version>28.0</version>
+</Package>

@@ -1,0 +1,6 @@
+<apex:page controller="EditOrderController" action="{!EditOrder}">
+	<apex:outputPanel >
+		<p>The order has already been {!Status}, you can't edit it.</p>
+		<p>Click <a href="/{!OrderId}">here</a> to go back to the order.</p>
+	</apex:outputPanel>
+</apex:page>

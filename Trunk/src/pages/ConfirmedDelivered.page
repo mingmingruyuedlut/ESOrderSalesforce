@@ -1,0 +1,10 @@
+<apex:page controller="ConfirmedDeliveredController" action="{!ConfirmedDelivered}">
+	<apex:outputPanel rendered="{!ShowOpenMessage}">
+		<p>The order has not been finalised, you cannot close it.</p>
+		<p>Click <a href="/{!OrderId}">here</a> to go back to the order.</p>
+	</apex:outputPanel>
+	<apex:outputPanel rendered="{!ShowClosedMessage}">
+		<p>The order has already been closed.</p>
+		<p>Click <a href="/{!OrderId}">here</a> to go back to the order.</p>
+	</apex:outputPanel>
+</apex:page>

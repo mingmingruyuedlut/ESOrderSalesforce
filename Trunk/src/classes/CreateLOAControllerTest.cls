@@ -1,0 +1,101 @@
+/**
+ * This class contains unit tests for validating the behavior of Apex classes
+ * and triggers.
+ *
+ * Unit tests are class methods that verify whether a particular piece
+ * of code is working properly. Unit test methods take no arguments,
+ * commit no data to the database, and are flagged with the testMethod
+ * keyword in the method definition.
+ *
+ * All test methods in an organization are executed whenever Apex code is deployed
+ * to a production organization to confirm correctness, ensure code
+ * coverage, and prevent regressions. All Apex classes are
+ * required to have at least 75% code coverage in order to be deployed
+ * to a production organization. In addition, all triggers must have some code coverage.
+ * 
+ * The @isTest class annotation indicates this class only contains test
+ * methods. Classes defined with the @isTest annotation do not count against
+ * the organization size limit for all Apex scripts.
+ *
+ * See the Apex Language Reference for more information about Testing and Code Coverage.
+ */
+@isTest (seeAllData=true)
+private class CreateLOAControllerTest {
+	static testMethod void myUnitTest() {
+		// setup
+		Account acct = new Account(
+			Name = 'My Account'
+		);
+		insert acct;
+		Product2 myProduct = new Product2(
+        	Name = 'product',
+        	SKU__c = 'E21191AE067422712339',
+        	Model__c = 'model',
+        	Manufacturer__c = 'manufacturer',
+        	Description = 'description',
+        	IsActive = true,
+        	Ticket_Price__c = 10,
+        	Supplier__c = 'supplier',
+        	Short_Description__c = 'short description',
+        	Season_Code__c = 'Q',
+        	SOH__c = 20,
+        	Promotion_Price__c = 10,
+        	Product_Group__c = 'group1',
+        	Online__c = false,
+        	Online_Title__c = 'online tilte',
+        	Long_Description__c = 'Long_Description',
+        	Floor_Price__c = 10,
+        	Department__c = 'Department',
+        	Cost_Inc_GST__c = 10.1,
+        	Cost_Ex_GST__c  = 10 	
+        );
+        insert myProduct;
+		Store__c myStore = new Store__c(
+			Suburb__c = 'suburb',
+			Store_Company__c = 'fabric',
+			StoreCode__c = 'storecode',
+			State__c = 'VIC',
+			Postcode__c = '1234',
+			Name = 'STORE1',
+			Address2__c = 'address2',
+			Address1__c = 'address1',
+			Phone__c = '11 2222 3333'
+		);
+		insert myStore;
+		Order__c ord = new Order__c(
+			Name = 'My Order',
+			Billing_Account__c = acct.Id,
+			Status__c = 'Open',
+			ByPass_VR__c = true
+		);
+		insert ord;
+		OrderLineItem__c myOrderLineItem = new OrderLineItem__c(
+	        Name = 'LOA Test',
+			Product__c = myProduct.Id,
+			Order__c = ord.Id,
+			Sales_Price_Inc__c = 22.5,
+			Quantity__c = 10,
+			DispatchPoint__c = myStore.Id
+		);
+		insert myOrderLineItem;
+		
+		
+		PageReference page = new PageReference('/apex/CreateLOA');
+		page.getParameters().put('id', ord.Id);
+		Test.setCurrentPage(page);
+		
+		// execute
+		ord = [select Id, Status__c, Order_Number__c from Order__c where Id = :ord.Id limit 1];
+		ord.Status__c = 'Finalised';
+		ord.ByPass_VR__c = true;
+		update ord;
+		
+		CreateLOAController ctrl = new CreateLOAController();
+		string fileName = ctrl.GetLOAFileName(ord.Order_Number__c, myStore.Name);
+		ctrl.Create();
+		
+		// assert
+		integer cnt = [select count() from Attachment where ParentId = :ord.Id and Name = :fileName];
+		system.assert(cnt == 1);
+	}
+}

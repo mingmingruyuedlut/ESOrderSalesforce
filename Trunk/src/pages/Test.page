@@ -1,0 +1,72 @@
+<apex:page controller="TestController">
+	<apex:includeScript value="/soap/ajax/29.0/connection.js"/>
+	<apex:includeScript value="{!URLFOR($Resource.jquery)}" />
+	<script type="text/javascript">
+		sforce.connection.sessionId = "{!$Api.Session_ID}";
+	</script>
+	<div class="bPageTitle"> 
+		<div class="ptBody">
+			<div class="content">
+				<img title="Products" class="pageTitleIcon" alt="Products" src="/s.gif" />
+				<h1 class="pageType">Products</h1>
+				<h2 class="pageDescription">Home</h2>
+			</div>
+		</div>
+	</div>
+	<apex:form >
+		<apex:commandButton action="{!Test}" value="Test"/>
+		<div class="bSubBlock brandSecondaryBrd secondaryPalette">
+			<h3>Find Products</h3>
+			<div class="searchFilterFieldsHolder searchFilterFieldsHolderFirst">
+				<table class="searchFilterFields">
+					<tr>
+						<td class="keywordElement">
+							<span>SKU</span><br/>
+							<input type="text" name="_sku" value="{!SearchCriteria.SKU}" />
+						</td>
+						<td class="keywordElement">
+							<span class="inputTitle">Model</span><br/>
+							<input type="text" name="_model" value="{!SearchCriteria.Model}" />
+						</td>
+						<td class="keywordElement">
+							<span class="inputTitle">Department</span><br/>
+							<apex:selectList value="{!Department}" size="1">
+								<apex:selectOptions value="{!DepartmentList}"/>
+							</apex:selectList>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<div class="searchFilterButtons productButtons" style="margin-top:5px;">
+								<apex:commandButton action="{!Search}" value="Search"/>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</apex:form>
+	<apex:outputPanel rendered="{!IF(SearchResults != null && SearchResults.size >0, true, false)}" layout="block">
+		<table class="list" cellspacing="0" cellpadding="0" border="0">
+			<tr class="headerRow">
+				<th class="actionColumn">Action</th>
+				<th class="zen-deemphasize">SKU</th>
+				<th class="zen-deemphasize">Model</th>
+				<th class="zen-deemphasize">Department</th>
+			</tr>
+			<apex:repeat value="{!SearchResults}" var="result">
+				<tr class="dataRow even first">
+					<td class="actionColumn">
+						<apex:outputLink value="{!'/' + result.ID + '/e?retURL=' + ReturnUrl}" styleClass="actionLink">Edit</apex:outputLink>
+						|
+						<apex:outputLink value="{!'/' + result.ID + '/e?act=0&retURL=' + ReturnUrl}" styleClass="actionLink" rendered="{!result.IsActive}">Deactive</apex:outputLink>
+						<apex:outputLink value="{!'/' + result.ID + '/e?act=1&retURL=' + ReturnUrl}" styleClass="actionLink" rendered="{!!result.IsActive}">Active</apex:outputLink>
+					</td>
+					<td class="dataCell">{!result.SKU}</td>
+					<td class="dataCell">{!result.Model}</td>
+					<td class="dataCell">{!result.Department}</td>
+				</tr>
+			</apex:repeat> 
+		</table>
+	</apex:outputPanel>
+</apex:page>

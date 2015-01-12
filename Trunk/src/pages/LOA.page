@@ -1,0 +1,157 @@
+<apex:page action="{!Init}" controller="LOAController" sidebar="false" showHeader="false" showChat="false" renderAs="pdf">
+<apex:stylesheet value="{!URLFOR($Resource.pdf_loa_css)}" html-media="print" />
+<div class="footer">
+	JB Hi-Fi Group Pty Ltd<br/>
+	ABN: 37 093 114 286 Chadstone Place, 1341 Dandenong Road, Chadstone VIC 3148<br/>
+	PO Box 561, Chadstone Centre VIC 3148 Ph: 1300 309 456 Fax: (03) 8530 7650
+</div>
+<div class="content">
+	<div class="f_left">
+		<apex:image value="{!ImgUrl}" height="60" />
+	</div>
+	<div class="f_right a_right">
+	JB Hi-Fi Commercial<br/>
+	Chadstone Shopping Centre<br/>
+	1341 Dandenong Road<br/>
+	Chadstone VIC 3148<br/>
+	PO Box 561, Chadstone Centre VIC 3148<br/>
+	Ph 1300 309 456 Fax 03 8530 7640
+	</div>
+	<div class="clear"></div>
+	<div class="m_top10 a_center">
+		<b class="underline" style="font-size:18px">Letter of Authority</b>
+	</div>
+	<div class="f_left m_top10" style="width:340px;">
+		<div class="a_center"><b>Ref. Purchase Order No. {!LOA.OrderNumber}</b></div>
+		<div class="box">
+			<b>To:</b><br/>
+			{!LOA.FirstName} {!LOA.LastName}<br/>
+			<apex:outputPanel rendered="{!LOA.Address1 != ''}">
+			{!LOA.Address1}<br/>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.Address2 != ''}">
+			{!LOA.Address2}<br/>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.Address3 != ''}">
+			{!LOA.Address3}<br/>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.Suburb != ''}">
+			{!LOA.Suburb},
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.State != ''}">
+			{!LOA.State},
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.Postcode != ''}">
+			{!LOA.Postcode}
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.Suburb + LOA.State + LOA.Postcode != ''}">
+			<br/>
+			</apex:outputPanel>
+			<br/>
+			<apex:outputPanel rendered="{!LOA.Phone != ''}">
+			Ph: {!LOA.Phone}<br/>
+			</apex:outputPanel>	
+		</div>
+	</div>
+	<div class="f_right m_top10" style="width:340px;">
+		<div class="a_center"><b>Date: {!LOA.PdfCreateDate}</b></div>
+		<div class="box">
+			<b>Collect Goods From:</b><br/>
+			JB Hi-Fi {!LOA.StoreName}<br/>
+			<apex:outputPanel rendered="{!LOA.StoreAddress1 != ''}">
+			{!LOA.StoreAddress1}<br/>
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.StoreAddress2 != ''}">
+			{!LOA.StoreAddress2}<br/>
+			</apex:outputPanel>
+			<br/>
+			<apex:outputPanel rendered="{!LOA.StoreSuburb != ''}">
+			{!LOA.StoreSuburb},
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.StoreState != ''}">
+			{!LOA.StoreState},
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.StorePostcode != ''}">
+			{!LOA.StorePostcode}
+			</apex:outputPanel>
+			<apex:outputPanel rendered="{!LOA.StoreSuburb + LOA.StoreState + LOA.StorePostcode != ''}">
+			<br/>
+			</apex:outputPanel>
+			
+			<apex:outputPanel rendered="{!LOA.StorePhone != ''}">
+			Ph: {!LOA.StorePhone}<br/>
+			</apex:outputPanel>			
+		</div>
+	</div>
+	<div class="clear"></div>
+	<p>Dear {!LOA.FirstName} {!LOA.LastName},</p>
+	<p>Please accept this Purchase Order to proceed to the JB Hi-Fi {!LOA.StoreName} store (details above) to collect the following goods as a result of your purchase through JB Hi-Fi.</p>
+	<table border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+	    <th class="underline">Stock Code</th>
+	    <th class="underline">Format</th>
+	    <th class="underline">Model</th>
+	    <th class="underline">Description</th>
+	    <th class="col_last a_center underline">Qty</th>
+	  </tr>
+	  <apex:repeat value="{!LOA.Products}" var="product">
+		  <tr>
+		    <td>{!product.StockCode}</td>
+		    <td>{!product.Format}</td>
+		    <td>{!product.Model}</td>
+		    <td>{!product.Description}</td>
+		    <td class="col_last a_center">{!product.Qty}</td>
+		  </tr>
+	  </apex:repeat>
+	  <tr>
+	  	<td colspan="4" class="a_right" style="border-width:0;font-weight:bold;padding:3px;">Total Qty</td>
+	  	<td class="col_last a_center">{!LOA.TotalQty}</td>
+	  </tr>
+	</table>
+	<b class="m_top10 underline">BEFORE YOU GO TO THE STORE?</b>
+	<ul>
+		<li>
+			JB Hi-Fi Commercial Division recommends that you call ahead to the JB store and ask for the store manager or duty manager.
+			<b>Calling ahead to ensure your goods are ready for collection can help you to avoid making unnecessary trips to the store.</b>
+		</li>
+	</ul>
+	<b class="m_top10 underline">COLLECTING YOUR GOODS FROM THE STORE?</b>
+	<ul>
+		<li>
+			<b>Take this letter with you.</b>
+			This letter must be produced before the goods can be collected
+		</li>
+		<li>
+			<b>Take some ID with you.</b>
+			The person(s) named above must present Photo ID (example Driver's Licence)
+		</li>
+		<li>
+			<b>Ask for the store manager</b>
+			or duty manager when you arrive to collect your goods
+		</li>
+	</ul>
+	<b class="m_top10 underline">IMPORTANT!!!</b>
+	<ul>
+		<li>
+			Call ahead to the JB store and ask for the manager. Calling ahead to ensure your goods are ready for collection can help you to avoid any unnecessary trips to the store.
+		</li>
+		<li>
+			<b>ONLY the person(s) named above are authorised to collect the above goods</b>
+		</li>
+		<li>
+			<b>JB Hi-Fi will assume no responsibility should this purchase order be lost or stolen</b>
+		</li>
+	</ul>
+	<p>
+		JB we've done it again!<br/>
+		Yours sincerely,
+	</p>
+	<p>
+		{!LOA.CreatorName}<br/>
+		Direct Line: <b>{!LOA.CreatorPhone}</b><br/>
+		Facsimile: {!LOA.CreatorFax}<br/>
+		Email: {!LOA.CreatorEmail}<br/>
+		Web site: <a href="http://www.jbhifi.com.au">www.jbhifi.com.au</a>
+	</p>
+</div>
+</apex:page>

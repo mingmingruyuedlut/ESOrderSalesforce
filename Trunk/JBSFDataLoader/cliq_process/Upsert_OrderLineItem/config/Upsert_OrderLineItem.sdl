@@ -1,0 +1,23 @@
+# Created by Dataloader Cliq
+#
+# Create your field mapping list in the following format
+# <Your CSV Field1>=<Salesforce Field in OrderLineItem__c>
+# NOTE: Salesforce Fields are case-sensitive. 
+
+# Example: 
+ID=Id
+SKU__C=SKU__c
+NAME=Name
+QUANTITY__C=Quantity__c
+COST_EX__C=Cost_Ex__c
+COST_INC__C=Cost_Inc__c
+DISPATCHPOINT__C=DispatchPoint__c
+FREIGHT_METHOD__C=Freight_Method__c
+STATUS__C=Status__c
+CLOSE_DATE__C=Close_Date__c
+INVOICE_NUMBER__C=Invoice_Number__c
+ORDER__C=Order__c
+BYPASS_VR__C=ByPass_VR__c
+
+
+

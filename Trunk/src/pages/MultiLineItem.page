@@ -1,0 +1,194 @@
+<apex:page controller="MultiLineItemController" action="{!PageInit}">
+
+<apex:outputPanel rendered="{!ShowFinalisedMessage}">
+	<p>The order has already been finalised.</p>
+	<p>Click <a href="/{!OrderId}">here</a> to go back to the order.</p>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!ShowFinalisedMessage == false}">
+
+<apex:includeScript value="{!URLFOR($Resource.jquery, '')}"  />
+<apex:stylesheet value="{!URLFOR($Resource.stylesheets, '/stylesheets/main.css')}"  />
+<script type="text/javascript">
+    $j = jQuery.noConflict();
+    $j(function () {
+        function IsNum(text) {
+            if (!isNaN(text)) { return true; } 
+            else { return false; }
+        }
+        
+	    function MathRound(val,digits){  
+			return Math.round(val * Math.pow(10, digits)) / Math.pow(10, digits); 
+		}
+
+        $j(".salesPrice,.quantity").blur(function () {
+        	var objSalesPrice = $j('.salesPrice', $j(this).parent().parent());
+        	var objQuantity = $j('.quantity', $j(this).parent().parent());  
+        	
+        	CalculateGP(objSalesPrice, objQuantity);  	
+        })
+        
+        function Check(obj){
+        	var val = $j(obj).val().trim();
+        	if(val != null && val != '' && !IsNum(val)){
+        		return false;
+        	}else{
+        		return true;
+        	}
+        }
+        
+        function CalculateGP(objSalesPrice, objQuantity){
+        	var salesPrice = objSalesPrice.val().trim();
+            var quantity = objQuantity.val().trim();            
+			
+			var isSalesPriceValid = Check(objSalesPrice);
+			var isQuantityValid = Check(objQuantity);
+            if (isSalesPriceValid && isQuantityValid) {
+            	var objGP1 = $j('.gp1', objSalesPrice.parent().parent());
+            	var objGP2 = $j('.gp2', objSalesPrice.parent().parent());
+            	var objCostInc = $j('.costInc', objSalesPrice.parent().parent());
+            	var costInc = objCostInc.text().trim();
+            	if(salesPrice != '' && quantity != ''){
+	                objGP1.text('$' + MathRound((salesPrice - costInc) * quantity, 2));
+	                if(costInc != '' && costInc != '0'){
+	                	objGP2.text(MathRound(((salesPrice - costInc) / costInc) * 100, 2) + '%');
+	                }
+                }else{
+	                objGP1.text('');
+	                objGP2.text('');
+                }
+            }
+        }
+        
+        function Init(){
+        	$j(".lineItemsDetail").each(function(){
+        		var objSalesPrice = $j('.salesPrice', $j(this));
+        		var objQuantity = $j('.quantity', $j(this));  
+        		CalculateGP(objSalesPrice, objQuantity);
+        	})
+        }
+        Init();
+    })
+</script>
+<style>
+.error{color:red;font-size:11px;magin:2px 3px;display:block;}
+.required {color:#990000;}
+.currency {text-align:right;}
+body tr th {padding-right:9px;}
+body tr td {padding-right:10px;}
+</style>
+<!-- Begin Default Content REMOVE THIS -->
+<div class="bPageTitle">
+    <div class="ptBody">
+        <div class="content">
+            <img title="Products" class="pageTitleIcon" alt="Products" src="/s.gif" />
+            <h1 class="pageType">{!PageType}</h1>
+            <h2 class="pageDescription">{!PageDescription}</h2>
+        </div>
+    </div>
+</div>
+<div class="bDescription">{!SubDescription}</div>
+<apex:form id="AddOrderLineItemForm">
+    <table class="genericTable brandSecondaryBrd multiLineItem">
+        <tbody>
+            <tr>
+                <td align="center" colspan="100%">
+                    <apex:commandButton action="{!Save}" value="Save" title="Save" styleClass="btn"/>&nbsp;
+                	<apex:commandButton action="{!Cancel}" value="Cancel" title="Cancel" styleClass="btn"/>&nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td height="15" colspan="100%"></td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" scope="col">SKU</th>
+                <th nowrap="nowrap" scope="col">Title</th>
+                <apex:outputPanel rendered="false">
+                	<th nowrap="nowrap" scope="col"><span class="required">Line Item Name</span></th>
+                	<th nowrap="nowrap" scope="col" class="currency">Cost Ex.</th>
+                </apex:outputPanel>               
+                <th nowrap="nowrap" scope="col" class="currency">Cost Inc.</th>
+                <th nowrap="nowrap" scope="col" class="currency">Ticket Price</th>
+                <th nowrap="nowrap" scope="col"><span class="required currency"><label><span class="requiredMark">*</span>Sales Price Inc.</label></span></th>
+                <th nowrap="nowrap" scope="col"><span class="required currency"><label><span class="requiredMark">*</span>Quantity</label></span></th>
+                <apex:outputPanel >	                
+	                <th nowrap="nowrap" scope="col" class="currency">GP $</th>
+	                <th nowrap="nowrap" scope="col" class="currency">GP %</th>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!IsOrder}">
+	                <th nowrap="nowrap" scope="col">Freight Method</th>
+	                <th nowrap="nowrap" scope="col">Dispatch Point</th>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="false">
+	                <th nowrap="nowrap" scope="col">Date [{!CurrentDate}]</th>
+	                <th nowrap="nowrap" scope="col">Line Description</th>
+                </apex:outputPanel>
+            </tr>
+            <tr>
+                <td height="1" bgcolor="#000000" colspan="100%"></td>
+            </tr>
+            
+            <apex:repeat value="{!LineItems}" var="item">
+            <tr valign="top" class="lineItemsDetail">
+                <td class="bodyBold">{!item.SKU}</td>
+                <td class="bodyBold">{!item.Title}</td>
+                <apex:outputPanel rendered="false">
+	                <td class="bodyBold">
+	                	<apex:inputText value="{!item.LineItemName}" maxlength="20"/>
+	                	<apex:outputPanel rendered="{!item.InValidLineItemName}" styleClass="error">You must enter a value</apex:outputPanel>
+					</td>
+					<td class="bodyBold currency"><label class="costEx">{!item.CostEx}</label></td>
+				</apex:outputPanel>				
+                <td class="bodyBold currency"><label class="costInc">{!item.CostInc}</label></td>
+				<td class="bodyBold currency">{!item.TicketPrice}</td>
+                <td class="bodyBold">
+                	<apex:inputText value="{!item.SalesPriceInc}" styleClass="salesPrice" size="20" maxlength="10"/>
+                	<apex:outputPanel rendered="{!item.InValidSalesPrice == 1}" styleClass="salesPriceTooltip error">You must enter a value</apex:outputPanel>
+                	<apex:outputPanel rendered="{!item.InValidSalesPrice == 2}" styleClass="salesPriceTooltip error">Invalid number</apex:outputPanel>
+               	</td>
+                <td class="bodyBold">
+                	<apex:inputText value="{!item.Quantity}" styleClass="quantity" size="10" maxlength="10"/>
+                	<apex:outputPanel rendered="{!item.InValidQuantity == 1}" styleClass="salesPriceTooltip error">You must enter a value</apex:outputPanel>
+                	<apex:outputPanel rendered="{!item.InValidQuantity == 2}" styleClass="salesPriceTooltip error">Invalid number</apex:outputPanel>
+               	</td>
+               	<apex:outputPanel >	                
+	                <td class="bodyBold currency"><label class="gp1">{!item.GPDollor}</label></td>
+	                <td class="bodyBold currency"><label class="gp2">{!item.GPPercent}</label></td>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!IsOrder}">
+	                <td class="bodyBold">
+	                    <apex:selectList id="SelectFreightMethod" value="{!item.FreightMethod}" size="1">
+							<apex:selectOptions value="{!FreightMethodList}"/>
+						</apex:selectList>
+	                </td>
+	                <td class="bodyBold">
+	                    <apex:selectList id="SelectDispatchPoint" value="{!item.DispatchPoint}" size="1">
+							<apex:selectOptions value="{!DispatchPointList}"/>
+						</apex:selectList>
+	                </td>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="false">
+	                <td class="bodyBold">
+	                	<apex:inputText value="{!item.ServiceDate}" onfocus="DatePicker.pickDate(false, this, false);" id="ServiceDate"/>
+	                	<apex:outputPanel rendered="{!item.InValidServiceDate}" styleClass="salesPriceTooltip error">Invalid Date</apex:outputPanel>
+	                </td>
+	                <td class="bodyBold">
+	                	<apex:inputText value="{!item.Description}" size="20" maxlength="255" style="width:120px"/>
+	                </td>
+                </apex:outputPanel>
+            </tr>
+            </apex:repeat>
+            <tr>
+                <td align="center" colspan="100%">
+                	<apex:commandButton action="{!Save}" value="Save" title="Save" styleClass="btn"/>&nbsp;
+                	<apex:commandButton action="{!Cancel}" value="Cancel" title="Cancel" styleClass="btn"/>&nbsp;
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</apex:form>
+<!-- End Default Content REMOVE THIS -->
+
+</apex:outputPanel>
+
+</apex:page>

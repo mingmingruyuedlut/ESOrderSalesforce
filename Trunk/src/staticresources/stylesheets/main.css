@@ -1,0 +1,49 @@
+.bSubBlock h3.lbHeader{padding-left:1px;padding-right:0}
+p{margin:0; padding:0}
+.field{float:left;margin-bottom:5px;margin-right:10px;}
+label.lbl{display:block;}
+input[type="text"]{width:130px;}
+.field input[type="text"].skuInput, .field input[type="text"].modelInput{width:71px;}
+.field input[type="text"].titleInput{width:155px;}
+.field input[type="text"].brandInput, .field input[type="text"].supplierInput, .field input[type="text"].sohInput{width:99px;} 
+.field input[type="text"].costInput, .field input[type="text"].priceInput{width:53px;}
+table.list input[type="checkbox"]{margin:0;padding:0};	
+.checkboxField input[type="checkbox"]{margin-top:3px; float:left;}
+.departmentField select, .productGroupField select, .seasonCodeField select{float:left;}
+select.shortSelect{width:40px; margin-right:5px;float:left;}
+.searchbtnField{margin-top:6px; }
+.checkboxField{margin-top:8px;}
+.clear{clear:both;}
+.msgBox{width:100%;padding:5px 2px;text-align: center;background:#cfeef8;border-radius:3px;margin-top:5px;display: block;}
+.field .error{border: 2px solid #CC0000; margin-top:-2px; margin-left:-2px;}
+table.list{margin-top:5px;}
+table 
+tr.headerRow th a{display: block;background: url(img/sortIcon.png) no-repeat right 3px;padding-right:10px;}
+body .fewerMore a{display:inline-block;} 
+.ui-state-default{width:110px!important;}
+.ui-multiselect-menu{width:auto!important;min-width:100px!important;}
+.pbError{color: #CC0000;font-weight: bold;text-align: center;margin-bottom:10px;}
+.ie .ui-state-default{width:113px!important;}
+.ie .ui-multiselect-menu{width:auto!important;min-width:106px!important;}
+.ie .field .error{border: 2px solid #CC0000; margin-top:-1px;}
+.ie .ui-multiselect{padding-top:0;padding-bottom:0; margin-top:-1px;}
+.ie7 .checkboxField span{display:inline-block;padding:3px 2px;}
+.ie8 .priceSelect{margin-top:0;display:inline-block;float:left;}
+.ie7 .titleField, .ie7 .brandField, .ie7 .supplierField{margin-right:5px;}
+/*add line items*/
+.selectButtons{text-align:center;margin-bottom:1em;}
+table.multiLineItem td[bgcolor="#000000"]{ background-color: rgba(0, 0, 0, 0); border-top: 2px solid #CCCCCC; padding-bottom: 4px;}
+tr.lineItemsDetail td.bodyBold input[type="text"]{width:80px;}
+.selectStore{width:500px;}
+.checkStore{margin-top:10px;}
+th.store{background:#cfeef8!important; color:#000!important; text-align:center;}
+td.hasCheckbox{border-left:#E0E3E5 1px solid!important;}
+.hasCheckbox input[type="radio"]{margin:0;padding:0}
+.error{color:red;font-size:11px;magin:2px 3px;display:block;}
+.dataCol .error{color:red;font-size:11px;magin:2px 3px; padding-left:3px;border:none!important;}
+.fl{ float:left;}
+.fr{ float:right;}
+.report h3.lbHeader{ margin-bottom:10px;}
+.CreditLimitTable tr td{padding-top:3px;padding-bottom:3px;}
+.CreditLimitTable tr td.title{ width:46%;padding-right:15px;text-align: right;color: #4A4A56;font-weight: bold;font-size:91%;}
+.CreditLimitTable tr td.value{ width:54%;padding-left:5px;}
